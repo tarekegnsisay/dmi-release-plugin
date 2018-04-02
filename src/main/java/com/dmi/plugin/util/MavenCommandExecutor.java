@@ -1,4 +1,4 @@
-package com.dmi.plugin.utility;
+package com.dmi.plugin.util;
 
 import java.io.File;
 import java.util.Collections;

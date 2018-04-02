@@ -1,20 +1,16 @@
 package com.dmi.plugin.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.SequenceInputStream;
 import java.util.Calendar;
 
-import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import com.dmi.plugin.scm.GitScmManagerService;
-import com.dmi.plugin.utility.MavenCommandExecutor;
-import com.dmi.plugin.utility.SystemCommandExecutor;
+import com.dmi.plugin.util.LoggingUtils;
+import com.dmi.plugin.util.MavenCommandExecutor;
+import com.dmi.plugin.util.ScmUtils;
 
 public class ReleaseService {
 	private Log logger;
@@ -27,15 +23,15 @@ public class ReleaseService {
 		
 		this.logger=logger;
 		logger.info("Release process started");
-		logProject(project,logger);
+		LoggingUtils.logProject(project,logger);
 		
-		String uri=getScmUri(project.getScm());
+		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
 		String localPath=project.getBasedir().getAbsolutePath();
 		
 		scmManagerService=new GitScmManagerService(uri,localPath);
 				
 		scmManagerService.pullRepo();
-		logger.info("Pulling latest updates from git...");
+		this.logger.info("Pulling latest updates from git...");
 		
 		String releaseBranchName=calculateReleaseBranchName();
 		scmManagerService.createBranch(releaseBranchName);
@@ -49,24 +45,36 @@ public class ReleaseService {
 		MavenCommandExecutor commandExecutor=new MavenCommandExecutor();
 		
 		try {
-			logger.info("Removing SNAPSHOT from Dependencies...");
+			this.logger.info("Removing SNAPSHOT from Dependencies...");
 			commandExecutor.executeMavenGoal(replaceSNAPSHOTString);
 			commandExecutor.executeMavenGoal(useLatestVersion);
 			commandExecutor.executeMavenGoal(commitChanges);
 		} catch (MavenInvocationException e) {
-			logger.error("MavenInvocationException");
+			this.logger.error("MavenInvocationException");
 		} catch (MojoFailureException e) {
-			logger.error("MojoFailureException");
+			this.logger.error("MojoFailureException");
 		}
 		scmManagerService.commitChanges("Setting latest dependency versions for release");
-		
 		//scmManagerService.pushAllBranches();
 		scmManagerService.pullRepo();
-		logger.info("Release start setup completed successfully");
+		this.logger.info("Release start setup completed successfully");
 	}
-
-	
-
+	public void finishRelease(MavenProject project, String releaseBranchName, Log logger) {
+		this.logger=logger;
+		logger.info("Finishing release...");
+		LoggingUtils.logProject(project,logger);
+		
+		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
+		String localPath=project.getBasedir().getAbsolutePath();
+		scmManagerService=new GitScmManagerService(uri,localPath);		
+		
+		
+		this.logger.info("Pulling latest updates from git...");
+		scmManagerService.checkoutBranch("master");
+		scmManagerService.mergeBranches("master",releaseBranchName);
+		//check all commits of release branches are in master
+		
+	}
 	private String calculateReleaseBranchName() {
 		String releaseName="release-";
 		Calendar calendar=Calendar.getInstance();
@@ -75,71 +83,4 @@ public class ReleaseService {
 		return releaseName;
 	}
 
-
-
-	public void excuteCommand(Log logger) {
-		try {
-			SequenceInputStream sis=SystemCommandExecutor.executeCommand();
-			BufferedReader br=new BufferedReader(new InputStreamReader(sis));
-			
-			String line="";
-			while((line=br.readLine())!=null) {
-				logger.info(line);
-			}
-			if(br.ready()) {
-				while((line=br.readLine())!=null) {
-					logger.info(line);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	public void executeCommandsWithMavenInvoker(Log logger) {
-		MavenCommandExecutor mavenCommandExecutor=new MavenCommandExecutor();
-		try {
-			mavenCommandExecutor.executeMavenGoal("versions:set -DnewVersion=3.0.0-SNAPSHOT");
-		} catch (MavenInvocationException e) {
-			logger.error(e);
-		}
-		catch(MojoFailureException e) {
-			logger.error(e);
-		}
-		logger.info("maven invoker was called here");
-	}
-	private void logProject(MavenProject project, Log logger) {
-		
-		logger.info("Project version: "+project.getVersion());
-		logger.info("Project URI: "+project.getVersion());
-		logger.info("Project base directory: "+project.getBasedir());
-		logger.info("Project base directory: AbsolutePath: "+project.getBasedir().getAbsolutePath());
-		
-	}
-	private String getScmUri(Scm scm) {
-		String uri="",scmConnection="";
-		if(scm!=null) {
-			scmConnection=scm.getConnection();
-			scmConnection=scmConnection.trim();
-			int index=scmConnection.indexOf("https");
-			index=index>=0?index:scmConnection.indexOf("git@");
-			index=index>=0?index:scmConnection.indexOf("http");
-			uri=scmConnection.substring(index);
-			if(uri.isEmpty()) {
-				logger.error(" scm url inside pom must be set");
-				return null;
-			}
-			logger.info("Repo URI:"+uri);
-			//check if valid git repo
-			//scmManagerService.validateRepo(uri);
-			return uri;
-			
-		}
-		else {
-			logger.error("scm element in pom.xm must be provided");
-			return null;
-		}
-	
-	}
 }
