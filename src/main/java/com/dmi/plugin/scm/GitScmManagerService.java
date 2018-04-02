@@ -12,9 +12,13 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.errors.AbortedByHookException;
 import org.eclipse.jgit.api.errors.CanceledException;
+import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -25,18 +29,20 @@ import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.NotMergedException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import com.dmi.plugin.utility.LoggingUtility;
+import com.dmi.plugin.util.LoggingUtils;
 
 
 
@@ -91,7 +97,7 @@ public class GitScmManagerService {
 		try {
 			this.repo=getRepository();
 		} catch (IOException e) {
-			LoggingUtility.saveLog(log,"error","Error while Initializing local repo: "+localPath);
+			LoggingUtils.saveLog(log,"error","Error while Initializing local repo: "+localPath);
 		}
 		this.git=new Git(this.repo);
 	}
@@ -158,7 +164,7 @@ public class GitScmManagerService {
 			this.git = Git.cloneRepository().setURI(this.uri).setDirectory(new File(this.localPath))
 					  .setCloneAllBranches(true)//!!!!
 					  .call();
-			LoggingUtility.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
+			LoggingUtils.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
 		} catch (Exception e) {
 			handleGitExceptions(e);
 		} 
@@ -171,7 +177,7 @@ public class GitScmManagerService {
 			  .setURI(uri)
 			  .setDirectory(new File(localPath))
 			  .call();
-			LoggingUtility.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
+			LoggingUtils.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
 		} catch (Exception e) {
 			handleGitExceptions(e);
 		} 
@@ -187,7 +193,7 @@ public class GitScmManagerService {
 			  .setBranchesToClone(Collections.singletonList(branchToClone))
 			  .setBranch(branchToClone)
 			  .call();
-			LoggingUtility.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
+			LoggingUtils.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
 		} catch (Exception e) {
 			handleGitExceptions(e);
 		} 
@@ -210,7 +216,7 @@ public class GitScmManagerService {
 		PullCommand pullCommand=this.git.pull();
 		try {
 			pullCommand.call();
-			LoggingUtility.saveLog(log, "info", "Repository is cloned sucessfully");
+			LoggingUtils.saveLog(log, "info", "Repository is cloned sucessfully");
 		} catch (Exception e) {
 			handleGitExceptions(e);
 		} 
@@ -230,52 +236,96 @@ public class GitScmManagerService {
 		} 
 	}
 	
+	
+public void mergeBranches(String destination, String source) {
+		try {
+			
+			this.git.checkout().setName(destination).setCreateBranch(false).call();
+			
+			ObjectId obj=this.git.getRepository().resolve(source);
+			MergeCommand mergeCommand=this.git.merge();
+			mergeCommand.include(obj);
+			
+			MergeResult mergeResult=mergeCommand.call();
+			MergeResult.MergeStatus status=mergeResult.getMergeStatus();
+			if(status.equals(MergeStatus.CONFLICTING)) {
+				LoggingUtils.saveLog(log, "error", mergeResult.getConflicts().toString());
+			}
+			else if(status.isSuccessful()){
+				deleteBranch(source);
+				
+			}
+		} catch (Exception e) {
+			handleGitExceptions(e);
+		}
+		
+}
+	
+private void deleteBranch(String branchToDelete) {
+	try {
+		this.git.branchDelete().setBranchNames(branchToDelete).call();
+	}  catch (Exception e) {
+		handleGitExceptions(e);
+	}
+	
+}
 public void handleGitExceptions(Exception e) {
 	if(e instanceof WrongRepositoryStateException)
-		LoggingUtility.saveLog(log, "error", "WrongRepositoryStateException");
+		LoggingUtils.saveLog(log, "error", "WrongRepositoryStateException");
 	else if(e instanceof InvalidConfigurationException) {
-		LoggingUtility.saveLog(log, "error", "InvalidConfigurationException");
+		LoggingUtils.saveLog(log, "error", "InvalidConfigurationException");
 }
 	else if(e instanceof InvalidConfigurationException) {
-		LoggingUtility.saveLog(log, "error", "InvalidConfigurationException");
+		LoggingUtils.saveLog(log, "error", "InvalidConfigurationException");
 	}
 	else if(e instanceof InvalidRemoteException) {
-		LoggingUtility.saveLog(log, "error", "InvalidRemoteException");
+		LoggingUtils.saveLog(log, "error", "InvalidRemoteException");
 	}
 	else if(e instanceof CanceledException) {
-		LoggingUtility.saveLog(log, "error", "CanceledException ");
+		LoggingUtils.saveLog(log, "error", "CanceledException ");
 	}
 	else if(e instanceof RefNotFoundException) {
-		LoggingUtility.saveLog(log, "error", "RefNotFoundException");
+		LoggingUtils.saveLog(log, "error", "RefNotFoundException");
 	}
 	else if(e instanceof RefNotAdvertisedException) {
-		LoggingUtility.saveLog(log, "error", "RefNotAdvertisedException");
+		LoggingUtils.saveLog(log, "error", "RefNotAdvertisedException");
 	}
 	else if(e instanceof NoHeadException) {
-		LoggingUtility.saveLog(log, "error", "NoHeadException");
+		LoggingUtils.saveLog(log, "error", "NoHeadException");
 	}
 	else if(e instanceof TransportException) {
-		LoggingUtility.saveLog(log, "error", "TransportException");
+		LoggingUtils.saveLog(log, "error", "TransportException");
 	}
 	else if(e instanceof GitAPIException) {
-		LoggingUtility.saveLog(log, "error", "GitAPIException");
+		LoggingUtils.saveLog(log, "error", "GitAPIException");
 	}
 	
 	else if(e instanceof AbortedByHookException) {
-		LoggingUtility.saveLog(log, "error", "AbortedByHookException");
+		LoggingUtils.saveLog(log, "error", "AbortedByHookException");
 	}
 	else if(e instanceof NoMessageException) {
-		LoggingUtility.saveLog(log, "error", "NoMessageException");
+		LoggingUtils.saveLog(log, "error", "NoMessageException");
 	}
 	else if(e instanceof UnmergedPathsException) {
-		LoggingUtility.saveLog(log, "error", "UnmergedPathsException");
+		LoggingUtils.saveLog(log, "error", "UnmergedPathsException");
 	}
+	
+	else if(e instanceof CannotDeleteCurrentBranchException) {
+		LoggingUtils.saveLog(log, "error", "CannotDeleteCurrentBranchException");
+	}
+	
+
+	else if(e instanceof NotMergedException) {
+		LoggingUtils.saveLog(log, "error", "CannotDeleteCurrentBranchException");
+	}
+	
 	
 	
 	else {
-		LoggingUtility.saveLog(log, "error", "Error occured ");
+		LoggingUtils.saveLog(log, "error", "Error occured ");
 	}
 }
+
 	
 	
 
