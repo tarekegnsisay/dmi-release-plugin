@@ -17,9 +17,16 @@ public class LoggingUtils {
 	public static void logProject(MavenProject project, Log logger) {
 		
 		logger.info("Project version: "+project.getVersion());
-		logger.info("Project URI: "+project.getVersion());
+		logger.info("Project NAme: "+project.getName());
+		if(project!=null && project.getScm()!=null) {
+			logger.info("Project URI: "+project.getScm().getConnection());
+	}
+	else {
+		logger.error("Please set or check scm config in pom.xml ");
+	}
 		logger.info("Project base directory: "+project.getBasedir());
 		logger.info("Project base directory: AbsolutePath: "+project.getBasedir().getAbsolutePath());
 		
-	}
+	
+}
 }

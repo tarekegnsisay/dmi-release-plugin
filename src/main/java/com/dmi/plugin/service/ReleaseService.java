@@ -22,7 +22,6 @@ public class ReleaseService {
 	public void startRelease(MavenProject project, Log logger) {
 		
 		this.logger=logger;
-		logger.info("Release process started");
 		LoggingUtils.logProject(project,logger);
 		
 		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
