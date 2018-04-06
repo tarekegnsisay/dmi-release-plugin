@@ -1,229 +1,235 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.dmi.maven.plugins</groupId>
-  <artifactId>dmi-release-maven-plugin</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>maven-plugin</packaging>
+	<groupId>com.dmi.maven.plugins</groupId>
+	<artifactId>dmi-release-maven-plugin</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>maven-plugin</packaging>
 
-  <name>DMI Release Maven Plugin</name>
+	<name>DMI Release Maven Plugin</name>
 
-  <!-- FIXME change it to the project's website -->
-  <url>http://maven.apache.org</url>
+	<!-- FIXME change it to the project's website -->
+	<url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.version>3.0.5</maven.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
-
-
-  <scm>
-      <connection>scm:git:https://github.com/musema/parent.git</connection>
-     <tag>HEAD</tag>
-</scm>
-  <dependencies>
-  	 <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>${maven.version}</version>
-    </dependency>
-    <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
-            <version>${maven.version}</version>
-            <scope>provided</scope>
-     </dependency>
-            <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-compat</artifactId>
-            <version>3.0.5</version>
-     </dependency>
-     
-	  <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-project -->
-	<dependency>
-	    <groupId>org.apache.maven</groupId>
-	    <artifactId>maven-project</artifactId>
-	    <version>2.2.1</version>
-	</dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${maven.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
-    </dependency> 
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <version>3.0.8</version>
-    </dependency>
-    
-    	<!-- Plugin testing -->
-    <dependency>
-	  <groupId>org.apache.maven.plugin-testing</groupId>
-	  <artifactId>maven-plugin-testing-harness</artifactId>
-	  <version>2.1</version>
-	</dependency>
-
-	 <dependency>
-	    <groupId>org.eclipse.aether</groupId>
-	    <artifactId>aether-api</artifactId>
-	    <version>1.0.2.v20150114</version>
-	</dependency>
-	<dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-api</artifactId>
-       <version>1.7.5</version>
-   </dependency>
-   <dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-log4j12</artifactId>
-       <version>1.7.5</version>
-   </dependency>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.version>3.0.5</maven.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.home>/usr/share/maven</maven.home>
+	</properties>
 
 
-<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
-	<dependency>
-	    <groupId>org.eclipse.jgit</groupId>
-	    <artifactId>org.eclipse.jgit</artifactId>
-	    <version>4.10.0.201712302008-r</version>
-	</dependency>
-	 <!-- Invoker -->
-    <dependency>
-	  <groupId>org.apache.maven.shared</groupId>
-	  <artifactId>maven-invoker</artifactId>
-	  <version>3.0.0</version>
-	</dependency>
+	<scm>
+		<connection>scm:git:https://github.com/musema/parent.git</connection>
+		<tag>HEAD</tag>
+	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${maven.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+			<version>3.0.5</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-project -->
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-resources-plugin</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+			<version>3.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.0.8</version>
+		</dependency>
+
+		<!-- Plugin testing -->
+		<dependency>
+			<groupId>org.apache.maven.plugin-testing</groupId>
+			<artifactId>maven-plugin-testing-harness</artifactId>
+			<version>2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-api</artifactId>
+			<version>1.0.2.v20150114</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
 
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>4.10.0.201712302008-r</version>
+		</dependency>
+		<!-- Invoker -->
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-invoker</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 
-  <build>
-  <pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.5.1</version>
-        <configuration>
-          <goalPrefix>dmi-release</goalPrefix>
-          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-        </configuration>
-        <executions>
-          <execution>
-            <id>mojo-descriptor</id>
-            <goals>
-              <goal>descriptor</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>help-goal</id>
-            <goals>
-              <goal>helpmojo</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- ant-run -->
-    <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-antrun-plugin</artifactId>
-         <version>1.8</version>
-                    <executions>
-                        <execution>
-                           <!-- <id>accept-release-name</id> --> 
-                           <phase>package</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            
-                            <configuration>
-                                <input message="Please enter release name (current is '${project.version}'): " addproperty="release-name" />
-                                <exportAntProperties>true</exportAntProperties>
-                            </configuration>
-                        </execution>
-                    </executions>
-           <dependencies>
-                        <dependency>
-                            <groupId>org.apache.ant</groupId>
-                            <artifactId>ant</artifactId>
-                            <version>1.8.4</version>
-                        </dependency>
-                    </dependencies>
-          </plugin>
-          
-		    <plugin>
-				    <groupId>org.apache.maven.plugins</groupId>
-				    <artifactId>maven-surefire-plugin</artifactId>
-				    <version>2.19.1</version>
-				    <configuration>
-				        <testFailureIgnore>false</testFailureIgnore>
-				    </configuration>
-				    <!-- https://mvnrepository.com/artifact/junit/junit -->
-				    <dependencies>
-				    
-				    </dependencies>
-			
-				    
-			</plugin>
-    </plugins>
-  </pluginManagement>
-  </build>
-  <profiles>
-    <profile>
-      <id>run-its</id>
-      <build>
 
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-invoker-plugin</artifactId>
-            <version>1.7</version>
-            <configuration>
-              <debug>true</debug>
-              <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-              <pomIncludes>
-                <pomInclude>*/pom.xml</pomInclude>
-              </pomIncludes>
-              <postBuildHookScript>verify</postBuildHookScript>
-              <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-              <settingsFile>src/it/settings.xml</settingsFile>
-              <goals>
-                <goal>clean</goal>
-                <goal>test-compile</goal>
-              </goals>
-            </configuration>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <goals>
-                  <goal>install</goal>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>3.5.1</version>
+					<configuration>
+						<goalPrefix>dmi-release</goalPrefix>
+						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+					</configuration>
+					<executions>
+						<execution>
+							<id>mojo-descriptor</id>
+							<goals>
+								<goal>descriptor</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>help-goal</id>
+							<goals>
+								<goal>helpmojo</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- ant-run -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.8</version>
+					<executions>
+						<execution>
+							<!-- <id>accept-release-name</id> -->
+							<phase>package</phase>
+							<goals>
+								<goal>run</goal>
+							</goals>
+
+							<configuration>
+								<input
+									message="Please enter release name (current is '${project.version}'): "
+									addproperty="release-name" />
+								<exportAntProperties>true</exportAntProperties>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.ant</groupId>
+							<artifactId>ant</artifactId>
+							<version>1.8.4</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.19.1</version>
+					<configuration>
+						<testFailureIgnore>false</testFailureIgnore>
+						<systemPropertyVariables>
+
+						</systemPropertyVariables>
+					</configuration>
+					<!-- https://mvnrepository.com/artifact/junit/junit -->
+					<dependencies>
+
+					</dependencies>
+
+
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<profiles>
+		<profile>
+			<id>run-its</id>
+			<build>
+
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-invoker-plugin</artifactId>
+						<version>1.7</version>
+						<configuration>
+							<debug>true</debug>
+							<cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+							<pomIncludes>
+								<pomInclude>*/pom.xml</pomInclude>
+							</pomIncludes>
+							<postBuildHookScript>verify</postBuildHookScript>
+							<localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+							<settingsFile>src/it/settings.xml</settingsFile>
+							<goals>
+								<goal>clean</goal>
+								<goal>test-compile</goal>
+							</goals>
+						</configuration>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>install</goal>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

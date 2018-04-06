@@ -1,14 +1,20 @@
 package com.dmi.plugin.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 public class LoggingUtils {
 	public static Map<String, List<String>> saveLog(Map<String, List<String>> oldLog, String newLogType, String message) {
-		List<String> oldLogDetail=oldLog.get(newLogType);
+		
+		List<String> oldLogDetail=oldLog.get(newLogType.trim());
+		if(oldLogDetail==null) {
+			oldLogDetail=new ArrayList<String>();
+		}
 		oldLogDetail.add(message);
 		oldLog.put(newLogType, oldLogDetail);
 		return oldLog;
@@ -29,4 +35,25 @@ public class LoggingUtils {
 		
 	
 }
+
+	public static void printLog(Map<String, List<String>> log, Log mavenLogger) {
+		if(log==null) {
+			mavenLogger.info("[Log is EMPTY OK]");
+			return;
+		}
+		for(Entry<String,List<String>> e:log.entrySet()) {
+			String logType=e.getKey();
+			List<String> logEntryList=e.getValue();
+			for(String logEntry:logEntryList) {
+				if(logType.equals("error")) {
+					mavenLogger.error("[["+logEntry+"]]");
+				}
+				else {
+					mavenLogger.info("[["+logEntry+"]]");
+				}
+			}
+			
+		}
+		
+	}
 }

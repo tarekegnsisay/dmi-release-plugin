@@ -5,9 +5,8 @@ import java.io.File;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Test;
 
-import com.dmi.plugin.mojo.release.ReleaseStartMojo;
+public class PomFileTest extends AbstractMojoTestCase {
 
-public class ReleaseServiceTest extends AbstractMojoTestCase {
 	private File pom;
 	/** {@inheritDoc} */
 	protected void setUp()
@@ -25,11 +24,15 @@ public class ReleaseServiceTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	public void testReleaseStart() throws Exception
+	public void testPomIsNotNull() throws Exception
 	{
-		ReleaseStartMojo releaseStartMojo = (ReleaseStartMojo) lookupMojo( "start", pom );
-		assertNotNull( releaseStartMojo );
-		releaseStartMojo.execute();
+		assertNotNull( pom );             
+	}
+
+	@Test
+	public void testPomExists() throws Exception
+	{       
+		assertTrue( pom.exists() );
 	}
 
 }

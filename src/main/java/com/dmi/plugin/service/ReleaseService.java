@@ -14,49 +14,60 @@ import com.dmi.plugin.util.ScmUtils;
 
 public class ReleaseService {
 	private Log logger;
-	private GitScmManagerService scmManagerService;
+	private GitScmManagerService scmService;
 	 /** Will perform release start tasks
 	 * @param project
 	 * @param logger
 	 */
 	public void startRelease(MavenProject project, Log logger) {
-		
-		this.logger=logger;
-		LoggingUtils.logProject(project,logger);
-		
-		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
-		String localPath=project.getBasedir().getAbsolutePath();
-		
-		scmManagerService=new GitScmManagerService(uri,localPath);
-				
-		scmManagerService.pullRepo();
-		this.logger.info("Pulling latest updates from git...");
-		
-		String releaseBranchName=calculateReleaseBranchName();
-		scmManagerService.createBranch(releaseBranchName);
-		
-		scmManagerService.checkoutBranch(releaseBranchName);
-		
-		String replaceSNAPSHOTString="versions:force-releases -Dincludes=com.adesa.tdd:* -DprocessDependencies=true";
-		String useLatestVersion="versions:use-latest-releases -Dincludes=com.adesa.tdd:* -DprocessDependencies=true";
-		String commitChanges="versions:commit";
-		
-		MavenCommandExecutor commandExecutor=new MavenCommandExecutor();
-		
 		try {
-			this.logger.info("Removing SNAPSHOT from Dependencies...");
-			commandExecutor.executeMavenGoal(replaceSNAPSHOTString);
-			commandExecutor.executeMavenGoal(useLatestVersion);
-			commandExecutor.executeMavenGoal(commitChanges);
-		} catch (MavenInvocationException e) {
-			this.logger.error("MavenInvocationException");
-		} catch (MojoFailureException e) {
-			this.logger.error("MojoFailureException");
+			this.logger=logger;
+			LoggingUtils.logProject(project,logger);
+			
+			String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
+			String localPath=project.getBasedir().getAbsolutePath();
+			
+			this.logger.info("Inside release service:> uri:"+uri+" & localpath:"+localPath);
+			scmService=new GitScmManagerService(uri.trim(),localPath.trim());
+			this.logger.info("Inside release service:>"+"git ripo created??");	
+			scmService.pullRepo();
+			this.logger.info("Pulling latest updates from git...");
+			
+			String releaseBranchName=calculateReleaseBranchName();
+			this.logger.info("release branch name::"+releaseBranchName);
+			scmService.createBranch(releaseBranchName);
+			
+			scmService.checkoutBranch(releaseBranchName);
+			
+			
+			
+			String replaceSNAPSHOTString="versions:force-releases -Dincludes=com.adesa.tdd:* -DprocessDependencies=true";
+			String useLatestVersion="versions:use-latest-releases -Dincludes=com.adesa.tdd:* -DprocessDependencies=true";
+			String commitChanges="versions:commit";
+			
+			MavenCommandExecutor commandExecutor=new MavenCommandExecutor();
+			
+			try {
+				this.logger.info("Removing SNAPSHOT from Dependencies...");
+				commandExecutor.executeMavenGoal("--version");
+				commandExecutor.executeMavenGoal(replaceSNAPSHOTString);
+				commandExecutor.executeMavenGoal(useLatestVersion);
+				commandExecutor.executeMavenGoal(commitChanges);
+			} catch (MavenInvocationException e) {
+				this.logger.error("MavenInvocationException");
+			} catch (MojoFailureException e) {
+				this.logger.error("MojoFailureException");
+			}
+			//scmManagerService.commitChanges("Setting latest dependency versions for release");
+			//scmManagerService.pushAllBranches();
+			scmService.pullRepo();
+			this.logger.info("Release start setup completed successfully");
 		}
-		scmManagerService.commitChanges("Setting latest dependency versions for release");
-		//scmManagerService.pushAllBranches();
-		scmManagerService.pullRepo();
-		this.logger.info("Release start setup completed successfully");
+		finally {
+			LoggingUtils.printLog(scmService==null?null:scmService.getLog(),this.logger);
+		}
+		
+		
 	}
 	public void finishRelease(MavenProject project, String releaseBranchName, Log logger) {
 		this.logger=logger;
@@ -65,20 +76,21 @@ public class ReleaseService {
 		
 		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
 		String localPath=project.getBasedir().getAbsolutePath();
-		scmManagerService=new GitScmManagerService(uri,localPath);		
+		scmService=new GitScmManagerService(uri,localPath);		
 		
 		
 		this.logger.info("Pulling latest updates from git...");
-		scmManagerService.checkoutBranch("master");
-		scmManagerService.mergeBranches("master",releaseBranchName);
+		scmService.checkoutBranch("master");
+		scmService.mergeBranches("master",releaseBranchName);
 		//check all commits of release branches are in master
 		
 	}
 	private String calculateReleaseBranchName() {
 		String releaseName="release-";
 		Calendar calendar=Calendar.getInstance();
-		releaseName.concat(Integer.toString(calendar.get(Calendar.YEAR)));
-		releaseName.concat(Integer.toString(calendar.get(Calendar.MONTH)));
+		releaseName+=Integer.toString(calendar.get(Calendar.YEAR));
+		releaseName+=Integer.toString(calendar.get(Calendar.MONTH));
+		releaseName+=Integer.toString(calendar.get(Calendar.HOUR));
 		return releaseName;
 	}
 
