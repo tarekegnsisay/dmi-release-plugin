@@ -10,11 +10,19 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import com.dmi.plugin.scm.GitScmManagerService;
 import com.dmi.plugin.util.LoggingUtils;
 import com.dmi.plugin.util.MavenCommandExecutor;
+import com.dmi.plugin.util.ScmBranchingConfiguration;
 import com.dmi.plugin.util.ScmUtils;
+import com.dmi.plugin.util.UserConfiguration;
 
-public class ReleaseService {
+public class ReleaseService  extends AbstractApplicationService {
 	private Log logger;
-	private GitScmManagerService scmService;
+	
+	public ReleaseService(ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
+		super(scmBranchingConfiguration,userConfiguration);
+	}
+
+	public ReleaseService() {}
+	
 	 /** Will perform release start tasks
 	 * @param project
 	 * @param logger
@@ -28,7 +36,7 @@ public class ReleaseService {
 			String localPath=project.getBasedir().getAbsolutePath();
 			
 			this.logger.info("Inside release service:> uri:"+uri+" & localpath:"+localPath);
-			scmService=new GitScmManagerService(uri.trim(),localPath.trim());
+			scmService=new GitScmManagerService(uri.trim(),localPath.trim(),userConfiguration);
 			this.logger.info("Inside release service:>"+"git ripo created??");	
 			scmService.pullRepo();
 			this.logger.info("Pulling latest updates from git...");
@@ -76,7 +84,7 @@ public class ReleaseService {
 		
 		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
 		String localPath=project.getBasedir().getAbsolutePath();
-		scmService=new GitScmManagerService(uri,localPath);		
+		scmService=new GitScmManagerService(uri,localPath,userConfiguration);		
 		
 		
 		this.logger.info("Pulling latest updates from git...");

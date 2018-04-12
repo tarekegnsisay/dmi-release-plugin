@@ -5,11 +5,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.dmi.plugin.mojo.AbstractConfiguratorMojo;
+import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.HotfixService;
 
 @Mojo(name="hotfix-start")
-public class HotfixStartMojo extends AbstractConfiguratorMojo{
+public class HotfixStartMojo extends AbstractApplicationMojo{
 
 	private HotfixService hotFixService=new HotfixService();
 	

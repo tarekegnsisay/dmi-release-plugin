@@ -4,11 +4,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 
-import com.dmi.plugin.mojo.AbstractConfiguratorMojo;
+import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.ReleaseService;
 
 @Mojo(name="start")
-public class ReleaseStartMojo extends AbstractConfiguratorMojo{
+public class ReleaseStartMojo extends AbstractApplicationMojo{
 
 	private ReleaseService releaseService=new ReleaseService();
 	

@@ -1,6 +1,6 @@
 package com.dmi.plugin.util;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,11 +9,11 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 public class LoggingUtils {
-	public static Map<String, List<String>> saveLog(Map<String, List<String>> oldLog, String newLogType, String message) {
+	public static Map<String, LinkedList<String>> saveLog(Map<String, LinkedList<String>> oldLog, String newLogType, String message) {
 		
-		List<String> oldLogDetail=oldLog.get(newLogType.trim());
+		LinkedList<String> oldLogDetail=oldLog.get(newLogType.trim());
 		if(oldLogDetail==null) {
-			oldLogDetail=new ArrayList<String>();
+			oldLogDetail=new LinkedList<String>();
 		}
 		oldLogDetail.add(message);
 		oldLog.put(newLogType, oldLogDetail);
@@ -36,12 +36,12 @@ public class LoggingUtils {
 	
 }
 
-	public static void printLog(Map<String, List<String>> log, Log mavenLogger) {
+	public static void printLog(Map<String, LinkedList<String>> log, Log mavenLogger) {
 		if(log==null) {
 			mavenLogger.info("[Log is EMPTY OK]");
 			return;
 		}
-		for(Entry<String,List<String>> e:log.entrySet()) {
+		for(Entry<String, LinkedList<String>> e:log.entrySet()) {
 			String logType=e.getKey();
 			List<String> logEntryList=e.getValue();
 			for(String logEntry:logEntryList) {

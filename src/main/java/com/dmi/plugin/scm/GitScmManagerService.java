@@ -2,44 +2,29 @@ package com.dmi.plugin.scm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.errors.AbortedByHookException;
-import org.eclipse.jgit.api.errors.CanceledException;
-import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidConfigurationException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.api.errors.NoMessageException;
-import org.eclipse.jgit.api.errors.NotMergedException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.api.errors.UnmergedPathsException;
-import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -51,9 +36,12 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FS;
 
+import com.dmi.plugin.util.Constants;
 import com.dmi.plugin.util.LoggingUtils;
+import com.dmi.plugin.util.UserConfiguration;
 
 
 
@@ -62,8 +50,8 @@ public class GitScmManagerService {
 	private String localPath;
 	private Repository repo;
 	private Git git;
-	
-	private Map<String, List<String>> log;
+	final UsernamePasswordCredentialsProvider userCredential;
+	private Map<String, LinkedList<String>> log;
 	
 	public String getUri() {
 		return uri;
@@ -78,10 +66,10 @@ public class GitScmManagerService {
 	public void setLocalPath(String localPath) {
 		this.localPath = localPath;
 	}
-	public Map<String, List<String>> getLog() {
+	public Map<String, LinkedList<String>> getLog() {
 		return log;
 	}
-	public void setLog(Map<String, List<String>> log) {
+	public void setLog(Map<String, LinkedList<String>> log) {
 		this.log = log;
 	}
 	public Git getGit() {
@@ -97,11 +85,11 @@ public class GitScmManagerService {
 		return repo;
 	}
 	
-	public GitScmManagerService(String uri,String localPath){
-		
+	public GitScmManagerService(String uri,String localPath, UserConfiguration userConfiguration){
+		userCredential = new UsernamePasswordCredentialsProvider(userConfiguration.getGitUsername(), userConfiguration.getGitPassword());
 		this.setUri(uri);
 		this.setLocalPath(localPath);
-		log=new HashMap<String,List<String>>();
+		this.log=new HashMap<String,LinkedList<String>>();
 				
 		if(uri==null||localPath==null) {
 			this.log=LoggingUtils.saveLog(log,"error","uri or local directory path is empty, unable to open the repo");
@@ -131,11 +119,16 @@ public class GitScmManagerService {
 		
 		
 	}
-	public Repository getExistingLocalGitRepo() throws IOException {
+	public Repository getExistingLocalGitRepo() {
 		
-		CheckoutCommand checkout=Git.open(new File(this.localPath+"/.git")).checkout();
-		LoggingUtils.saveLog(log,"info","Repository opened: "+localPath);
-		return checkout.getRepository();
+		CheckoutCommand checkout=null;
+		try {
+			checkout = Git.open(new File(this.localPath+"/.git")).checkout();
+			LoggingUtils.saveLog(log,"info","Repository opened: "+localPath);
+		} catch (IOException e) {
+			LoggingUtils.saveLog(log,"error","error while opening local repository at: "+localPath);
+		}
+		return checkout!=null?checkout.getRepository():null;
 		
 	}
 	
@@ -145,32 +138,15 @@ public class GitScmManagerService {
 	}
 	
 	public void commitChanges(String commitMassage) {
-		CommitCommand commit=this.git.commit().setAll(true);
-		commit.setMessage(commitMassage);
 		
+		CommitCommand commitCommand=this.git.commit().setAll(true);
+		commitCommand.setMessage(commitMassage);
+		String currentBranch="";
 			try {
-				commit.call();
-			} catch (NoHeadException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (NoMessageException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (UnmergedPathsException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (ConcurrentRefUpdateException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (WrongRepositoryStateException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (AbortedByHookException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
+				currentBranch=commitCommand.getRepository().getBranch();
+				commitCommand.call();
+			}catch (Exception e) {
+				LoggingUtils.saveLog(log,"error","error while commiting changes to: "+currentBranch);
 			}
 		
 		
@@ -179,9 +155,22 @@ public class GitScmManagerService {
 		CreateBranchCommand createBranchCommand=this.git.branchCreate().setName(branchName);
 		try {
 			createBranchCommand.call();
+			setUpStream(branchName);
 		} catch (Exception e) {
-			handleGitExceptions(e);
+			LoggingUtils.saveLog(this.log, "error","unable to create branch: "+branchName);
 		} 
+		
+	}
+	private void setUpStream(String branchName) {
+		
+		StoredConfig storedConfig = git.getRepository().getConfig();
+		storedConfig.setString( Constants.GIT_BRANCH_CONFIG_SECTION,branchName, "remote", branchName );
+		storedConfig.setString( Constants.GIT_BRANCH_CONFIG_SECTION,branchName, "merge", branchName );
+		try {
+			storedConfig.save();
+		} catch (IOException e) {
+			LoggingUtils.saveLog(this.log, "error","unable to setupstream in config file for branch: "+branchName);
+		}
 		
 	}
 	public void createTag() throws ConcurrentRefUpdateException, InvalidTagNameException, NoHeadException, GitAPIException {
@@ -200,14 +189,10 @@ public class GitScmManagerService {
 			CheckoutCommand checkoutCommand=this.git.checkout().setName(branchToCheckout);
 			checkoutCommand.call();
 		}  catch (Exception e) {
-			handleGitExceptions(e);
+			LoggingUtils.saveLog(this.log, "error","unable to checkout branch: "+branchToCheckout);
 		} 
 	}
-	public void checkoutBranch(String uri, String releaseBranch) {
-		// TODO Auto-generated method stub
-		
-	}
-	
+
 	
 	public void cloneAllBranches() {
 		try {
@@ -215,9 +200,9 @@ public class GitScmManagerService {
 					  .setCloneAllBranches(true)//!!!!
 					  .call();
 			LoggingUtils.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
-		} catch (Exception e) {
-			handleGitExceptions(e);
-		} 
+		}catch (GitAPIException e) {
+			LoggingUtils.saveLog(log, "error", "unable to clone all branches: [ "+this.uri+" ]"+e.getMessage());
+		}
 	
 	}
 	public Repository initializeGitDirectory() {
@@ -228,23 +213,22 @@ public class GitScmManagerService {
 
 			
 			 StoredConfig config = repo.getConfig();
-			RemoteConfig remoteConfig = new RemoteConfig(config, "origin");
+			RemoteConfig remoteConfig = new RemoteConfig(config, Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME);
 			remoteConfig.addURI(new URIish(this.uri));
 			
-			remoteConfig.addFetchRefSpec(new RefSpec(
-			    "+refs/heads/*"+
-			   ":refs/remotes/origin/*"));
+			remoteConfig.addFetchRefSpec(new RefSpec(Constants.GIT_DEFAULT_SRC_REF_SPEC+":"+Constants.GIT_DEFAULT_DST_REF_SPEC));
 			remoteConfig.update(config);
 			config.save();
 
 			this.git.fetch().call();
-			this.git.branchCreate().setName("master").setStartPoint("origin/" + "master")
+			this.git.branchCreate().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
+				.setStartPoint(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME+"/" + Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
 			    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM).call();
-			this.git.checkout().setName("master").call();
+			this.git.checkout().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME).call();
 
 			
 		}catch(Exception e) {
-			handleGitExceptions(e);
+			LoggingUtils.saveLog(this.log, "error","exception while initializeGitDirectory: "+localPath);
 		}
 		return repo;
 		
@@ -260,9 +244,9 @@ public class GitScmManagerService {
 			LoggingUtils.saveLog(this.log, "info","Repo was sucessfully cloned to: "+localPath);
 			CheckoutCommand checkout=Git.open(new File(this.localPath+"/.git")).checkout();
 			repo=checkout.getRepository();
-		} catch (Exception e) {
-			handleGitExceptions(e);
-		} 
+		} catch (IOException | GitAPIException e) {
+			LoggingUtils.saveLog(log, "error", "unable to clone repo from uri: [ "+this.uri+" ]"+e.getMessage());
+		}
 		return repo;
 	}
 	
@@ -280,9 +264,9 @@ public class GitScmManagerService {
 			
 			CheckoutCommand checkout=Git.open(new File(this.localPath+"/.git")).checkout();
 			repo=checkout.getRepository();
-		} catch (Exception e) {
-			handleGitExceptions(e);
-		} 
+		} catch (IOException | GitAPIException e) {
+			LoggingUtils.saveLog(log, "error", "unable to clone branch: [ "+branchToClone+" ]"+e.getMessage());
+		}
 		return repo;
 	}
 	public void checkoutCommit(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException{
@@ -303,9 +287,9 @@ public class GitScmManagerService {
 		try {
 			pullCommand.call();
 			LoggingUtils.saveLog(log, "info", "Repository is cloned sucessfully");
-		} catch (Exception e) {
-			handleGitExceptions(e);
-		} 
+		} catch (GitAPIException e) {
+			LoggingUtils.saveLog(log, "error", "unable to pull repo from: [ "+this.uri+" ]"+e.getMessage());
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -317,12 +301,12 @@ public class GitScmManagerService {
 			                .findGitDir() // scan up the file system tree
 			                .setMustExist(true)
 			                .build();
-		}catch (Exception e) {
-			handleGitExceptions(e);
-		} 
+		}catch (IOException e) {
+			LoggingUtils.saveLog(log, "error", "unable to create git repo at: [ "+localPath+" ]"+e.getMessage());
+		}
 	}
 public boolean isGitRepo() {	
-	boolean detected=RepositoryCache.FileKey.isGitRepository(new File(this.localPath), FS.DETECTED);
+	boolean detected=RepositoryCache.FileKey.isGitRepository(new File(this.localPath+"/.git"), FS.DETECTED);
 	return detected;
 }
 public void mergeBranches(String destination, String source) {
@@ -343,102 +327,50 @@ public void mergeBranches(String destination, String source) {
 				deleteBranch(source);
 				
 			}
-		} catch (Exception e) {
-			handleGitExceptions(e);
+		}  catch (GitAPIException | IOException e) {
+			LoggingUtils.saveLog(log, "error", "unable to merge branches, destination: [ "+destination+" ] and source: [ "+source+" ]"+e.getMessage());
 		}
-		
 }
 	
 private void deleteBranch(String branchToDelete) {
 	try {
-		this.git.branchDelete().setBranchNames(branchToDelete).call();
-	}  catch (Exception e) {
-		handleGitExceptions(e);
+		String currentBranch=this.git.getRepository().getFullBranch();
+		if(branchToDelete.equalsIgnoreCase(currentBranch)) {
+			/*
+			 * check out another branch and proceed deletion, master,develop?TBD
+			 */
+		}
+		this.git.branchDelete().setForce(true).setBranchNames(branchToDelete).call();
+	}  catch (GitAPIException | IOException e) {
+		LoggingUtils.saveLog(log, "error", "unable to delete branch: [ "+branchToDelete+" ]"+e.getMessage());
 	}
 	
 }
-public void pushNewBranch(String newFeatureName) {
-	//git push --set-upstream origin $newFeatureName
+public void pushNewBranch(String newBranchName) {
 	try {
-		  Ref newBranchName = git.checkout()
-                  .setName(newFeatureName)
-                  .setCreateBranch(true)
-                  //.setStartPoint(startPoint)
-                  .call();
-		  git.push().setRemote("origin").call();
-		
-//		CreateBranchCommand createBranchCommand=this.git.branchCreate().setName(newFeatureName);
-//		//createBranchCommand.setUpstreamMode(SetupUpstreamMode.SET_UPSTREAM);
-//		createBranchCommand.setStartPoint("develop");
-//		createBranchCommand.call();
-//		this.git.checkout().setName(newFeatureName).call();
-//		String spec=newFeatureName+":"+newFeatureName;
-//		PushCommand pushCommand=this.git.push();
-//		//pushCommand.setRemote("origin");
-//		//pushCommand.setRefSpecs(new RefSpec(spec));
-//		pushCommand.call();
+		  git.push().setRemote("origin").setCredentialsProvider(userCredential).call();
+		  LoggingUtils.saveLog(log, "info", " branch: [ "+newBranchName+" ] has been pushed successfully");
 	} catch (GitAPIException e) {
-		handleGitExceptions(e);
+		LoggingUtils.saveLog(log, "error", "unable to push branch: [ "+newBranchName+" ]"+e.getMessage());
 	}
-	
-
 }
-public void handleGitExceptions(Exception e) {
-	if(e instanceof WrongRepositoryStateException)
-		LoggingUtils.saveLog(log, "error", "WrongRepositoryStateException");
-	else if(e instanceof InvalidConfigurationException) {
-		LoggingUtils.saveLog(log, "error", "InvalidConfigurationException");
-}
-	else if(e instanceof InvalidConfigurationException) {
-		LoggingUtils.saveLog(log, "error", "InvalidConfigurationException");
+public boolean isBranchExists(String branchName){
+	boolean exists=true;
+	Ref ref;
+	try {
+		ref = repo.exactRef(Constants.GIT_DEFAULT_HEADS_REF + branchName);
+		if (ref == null) {
+			ref=repo.exactRef(Constants.GIT_DEFAULT_REMOTE_REF + branchName);
+			if(ref==null) {
+				exists=false;
+				LoggingUtils.saveLog(log, "info", "branch checked, doesn't exist: good to go");
+			}
+				
+	    }
+	} catch (IOException e) {
+		LoggingUtils.saveLog(log, "error", "error while trying to check if branch [ "+branchName+" ] exists"+e.getMessage());
 	}
-	else if(e instanceof InvalidRemoteException) {
-		LoggingUtils.saveLog(log, "error", "InvalidRemoteException");
-	}
-	else if(e instanceof CanceledException) {
-		LoggingUtils.saveLog(log, "error", "CanceledException ");
-	}
-	else if(e instanceof RefNotFoundException) {
-		LoggingUtils.saveLog(log, "error", "RefNotFoundException");
-	}
-	else if(e instanceof RefNotAdvertisedException) {
-		LoggingUtils.saveLog(log, "error", "RefNotAdvertisedException");
-	}
-	else if(e instanceof NoHeadException) {
-		LoggingUtils.saveLog(log, "error", "NoHeadException");
-	}
-	else if(e instanceof TransportException) {
-		LoggingUtils.saveLog(log, "error", "TransportException");
-	}
-	else if(e instanceof GitAPIException) {
-		LoggingUtils.saveLog(log, "error", "GitAPIException");
-	}
-	
-	else if(e instanceof AbortedByHookException) {
-		LoggingUtils.saveLog(log, "error", "AbortedByHookException");
-	}
-	else if(e instanceof NoMessageException) {
-		LoggingUtils.saveLog(log, "error", "NoMessageException");
-	}
-	else if(e instanceof UnmergedPathsException) {
-		LoggingUtils.saveLog(log, "error", "UnmergedPathsException");
-	}
-	
-	else if(e instanceof CannotDeleteCurrentBranchException) {
-		LoggingUtils.saveLog(log, "error", "CannotDeleteCurrentBranchException");
-	}
-	
-
-	else if(e instanceof NotMergedException) {
-		LoggingUtils.saveLog(log, "error", "CannotDeleteCurrentBranchException");
-	}
-	
-	else if(e instanceof NullPointerException) {
-		LoggingUtils.saveLog(log, "error", "Null Pointer Exception:GIT ");
-	}
-	else {
-		LoggingUtils.saveLog(log, "error", "Error occured ");
-	}
+    return exists;
 }
 
 
