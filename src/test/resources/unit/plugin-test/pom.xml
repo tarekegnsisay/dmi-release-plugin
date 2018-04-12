@@ -44,8 +44,8 @@
 						<featureBranchPrefix>feature/</featureBranchPrefix>
 					</scmBranchingConfiguration>
 					<userConfiguration>
-						<gitUsername>musema.hassen@gmail.com</gitUsername>
-						<gitPassword>musads2025</gitPassword>
+						<gitUsername>myemail</gitUsername>
+						<gitPassword>mypass</gitPassword>
 					</userConfiguration>
 				</configuration>
 				<executions>
