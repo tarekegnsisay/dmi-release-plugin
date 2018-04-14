@@ -1,4 +1,4 @@
-package com.dmi.plugin.scm;
+package com.dmi.plugin.service.git;
 
 public abstract class AbstractScmManagerService {
 	

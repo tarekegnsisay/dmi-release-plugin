@@ -16,13 +16,17 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 public class MavenCommandExecutor {
 	private final Invoker commandInvoker;
 	public MavenCommandExecutor() {
-		Invoker myInvoker=new DefaultInvoker();
-		commandInvoker=myInvoker;
+		Invoker tempInvoker=new DefaultInvoker();
+		/*
+		 * change me later System.getenv("M2_HOME")
+		 */
+		tempInvoker.setMavenHome(new File("/usr/share/maven").getAbsoluteFile());
+		commandInvoker=tempInvoker;
 	}
 	public MavenCommandExecutor(File localRepo) {
-		Invoker myInvoker=new DefaultInvoker();
-		myInvoker.setLocalRepositoryDirectory(localRepo);
-		commandInvoker=myInvoker;
+		Invoker tempInvoker=new DefaultInvoker();
+		tempInvoker.setLocalRepositoryDirectory(localRepo);
+		commandInvoker=tempInvoker;
 	}
 	public void executeMavenGoals(List<String> goals)   throws MavenInvocationException, MojoFailureException {
 		InvocationRequest request=new DefaultInvocationRequest();
