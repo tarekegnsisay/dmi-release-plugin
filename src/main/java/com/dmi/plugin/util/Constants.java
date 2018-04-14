@@ -2,7 +2,7 @@ package com.dmi.plugin.util;
 
 public class Constants {
 	
-	public static final String GIT_BRANCH_CONFIG_SECTION="branch";
+	public static final String GIT_CONFIG_BRANCH_SECTION="branch";
 	public static final String GIT_REMOTE_CONFIG_SECTION="remote";
 	public static final String GIT_DEFAULT_REMOTE_ALIAS_NAME="origin";
 	
@@ -13,5 +13,8 @@ public class Constants {
 	public static final String GIT_DEFAULT_REMOTE_REF="refs/remotes/origin/";
 	
 	public static final String GIT_DEFAULT_MASTER_BRANCH_NAME="master";
-
+	
+	public static final String GIT_DEFAULT_GIT_DIR_LOCATION="/.git";
+	
+	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="develop";
 }

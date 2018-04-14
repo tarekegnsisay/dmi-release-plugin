@@ -1,16 +1,16 @@
 package com.dmi.plugin.service;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-import com.dmi.plugin.scm.GitScmManagerService;
-import com.dmi.plugin.util.LoggingUtils;
+import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.ScmBranchingConfiguration;
 import com.dmi.plugin.util.ScmUtils;
 import com.dmi.plugin.util.UserConfiguration;
 
 public class FeatureService extends AbstractApplicationService{
-	
+	final static Logger logger = Logger.getLogger(FeatureService.class);
 	public FeatureService(ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
 		super(scmBranchingConfiguration,userConfiguration);
 	}
@@ -28,7 +28,7 @@ public class FeatureService extends AbstractApplicationService{
 		
 		
 		try {
-			scmService=new GitScmManagerService(uri,localPath,userConfiguration);
+			scmService=new GitScmService(uri,localPath,userConfiguration);
 			
 			boolean branchExists=scmService.isBranchExists(newFeatureName);
 			if(branchExists) {
@@ -42,7 +42,7 @@ public class FeatureService extends AbstractApplicationService{
 			scmService.pushNewBranch(newFeatureName);
 		}
 		finally {
-			LoggingUtils.printLog(scmService==null?null:scmService.getLog(),logger);
+
 		}
 		return status;
 	}

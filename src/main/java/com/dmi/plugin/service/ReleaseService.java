@@ -7,7 +7,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import com.dmi.plugin.scm.GitScmManagerService;
+import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.LoggingUtils;
 import com.dmi.plugin.util.MavenCommandExecutor;
 import com.dmi.plugin.util.ScmBranchingConfiguration;
@@ -36,7 +36,7 @@ public class ReleaseService  extends AbstractApplicationService {
 			String localPath=project.getBasedir().getAbsolutePath();
 			
 			this.logger.info("Inside release service:> uri:"+uri+" & localpath:"+localPath);
-			scmService=new GitScmManagerService(uri.trim(),localPath.trim(),userConfiguration);
+			scmService=new GitScmService(uri.trim(),localPath.trim(),userConfiguration);
 			this.logger.info("Inside release service:>"+"git ripo created??");	
 			scmService.pullRepo();
 			this.logger.info("Pulling latest updates from git...");
@@ -72,7 +72,7 @@ public class ReleaseService  extends AbstractApplicationService {
 			this.logger.info("Release start setup completed successfully");
 		}
 		finally {
-			LoggingUtils.printLog(scmService==null?null:scmService.getLog(),this.logger);
+			
 		}
 		
 		
@@ -84,12 +84,12 @@ public class ReleaseService  extends AbstractApplicationService {
 		
 		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
 		String localPath=project.getBasedir().getAbsolutePath();
-		scmService=new GitScmManagerService(uri,localPath,userConfiguration);		
+		scmService=new GitScmService(uri,localPath,userConfiguration);		
 		
 		
 		this.logger.info("Pulling latest updates from git...");
 		scmService.checkoutBranch("master");
-		scmService.mergeBranches("master",releaseBranchName);
+		scmService.mergeAndDeleteBranches("master",releaseBranchName);
 		//check all commits of release branches are in master
 		
 	}

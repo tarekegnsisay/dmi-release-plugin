@@ -29,7 +29,7 @@ public class ReleaseServiceTest extends AbstractMojoTestCase {
 	{
 		ReleaseStartMojo releaseStartMojo = (ReleaseStartMojo) lookupMojo( "start", pom );
 		assertNotNull( releaseStartMojo );
-		releaseStartMojo.execute();
+		//		releaseStartMojo.execute();
 	}
 
 }
