@@ -1,7 +1,6 @@
 package com.dmi.plugin.service.git;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -15,8 +14,6 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import com.dmi.plugin.util.UserConfiguration;
-
-
 
 public class GitScmService {
 	private String uri;
@@ -45,56 +42,69 @@ public class GitScmService {
 		this.git=new Git(this.repo);
 	}
 
-
-	public void stageFiles(String fileOrDirectoryPattern) throws NoFilepatternException, GitAPIException {
-		AddCommand add=this.git.add();
-		add.addFilepattern(fileOrDirectoryPattern).call();
+	public Git getGit() {
+		return git;
+	}
+	
+	public void stageFiles(String filePattern) throws NoFilepatternException, GitAPIException {
+		StagingService.stageFiles(git, filePattern);
 	}
 
-	public void commitChanges(String commitMassage) {
+	public void commitAllChangesToTackedFiles(String commitMassage) {
 
-		CommitService.commitChanges(git, commitMassage);
+		CommitService.commitAllChangesToTackedFiles(git, commitMassage);
 	}
-
+	public void commitStagedFilesOnly(String commitMessage) {
+		CommitService.commitStagedFilesOnly(git,commitMessage);
+	}
 	public void createBranch(String branchName) {
-		BranchAndTagService.createBranch(git, branchName);
+		BranchService.createBranch(git, branchName);
 
 	}
 
+	public void createAndPushBranch(String branchName) {
+		BranchService.createAndPushBranch(git, branchName, userCredential);
 
+	}
 	public void createTag() throws ConcurrentRefUpdateException, InvalidTagNameException, NoHeadException, GitAPIException {
-		BranchAndTagService.createTag(git);
+		TagService.createTag(git);
 	}
 
-	public boolean deleteBranch(String branchToDelete) {
-		return BranchAndTagService.deleteBranch(git, branchToDelete);
+	public boolean deleteBranchFromLocal(String branchToDelete) {
+		return BranchService.deleteBranch(git, branchToDelete);
 	}
+	
+	public boolean deleteBranchFromRemote(String branchToDelete) {
+		return BranchService.deleteBranchFromRemote(git, branchToDelete, userCredential);
+	}
+	
 	public boolean checkoutBranch(String branchToCheckout) {
-		return BranchAndTagService.checkoutBranch(git, branchToCheckout);
+		return BranchService.checkoutBranch(git, branchToCheckout);
 	}
-
-
+	
 	public void cloneAllBranches() {
 		
 		RepositoryAndCloneService.cloneAllBranches(uri, localPath);
 	}
-	public Repository cloneRepo() {
-		return RepositoryAndCloneService.cloneRepo(uri, localPath);
+	
+	public Repository cloneRepository() {
+		return RepositoryAndCloneService.cloneRepository(uri, localPath);
 	}
-
-
+	
 	public Repository cloneSpecificBranch(String branchToClone) {
 		return RepositoryAndCloneService.cloneSpecificBranch(uri, localPath, branchToClone);
 	}
+	
 	public void checkoutCommit(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException{
-		CommitService.checkoutCommit(git, commitId);
+		BranchService.checkoutCommit(git, commitId);
 	}
 
 	public void checkoutCommit(String commitId, String checkoutToBranch) {
-		CommitService.checkoutCommit(git, commitId, checkoutToBranch);
+		BranchService.checkoutCommit(git, commitId, checkoutToBranch);
 	}
+	
 	public void pullRepo() {
-		PushAndPullService.pullRepo(git);
+		PullService.pullRepo(git);
 	}
 
 	public Repository createGitRepo() {
@@ -107,19 +117,17 @@ public class GitScmService {
 
 
 	public void pushNewBranch(String newBranchName) {
-		PushAndPullService.pushNewBranch(git, newBranchName, userCredential);
+		PushService.pushNewBranch(git, newBranchName, userCredential);
 	}
+	
 	public boolean isBranchExists(String branchName){
-		return BranchAndTagService.isBranchExists(git, branchName);
+		return BranchService.isBranchExists(git, branchName);
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void setUpStream(String branchName) {
-		BranchAndTagService.setUpStream(git, branchName);
+		BranchService.setUpStream(git, branchName);
 
 	}
-
-
-
 
 }

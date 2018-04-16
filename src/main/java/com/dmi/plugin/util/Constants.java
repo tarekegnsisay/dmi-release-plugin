@@ -9,12 +9,15 @@ public class Constants {
 	public static final String GIT_DEFAULT_SRC_REF_SPEC="+refs/heads/*";
 	public static final String GIT_DEFAULT_DST_REF_SPEC="refs/remotes/origin/*";
 	
-	public static final String GIT_DEFAULT_HEADS_REF="refs/heads/";
-	public static final String GIT_DEFAULT_REMOTE_REF="refs/remotes/origin/";
+	public static final String GIT_DEFAULT_REFS_HEADS="refs/heads/";
+	public static final String GIT_DEFAULT_REFS_REMOTES="refs/remotes/origin/";
 	
 	public static final String GIT_DEFAULT_MASTER_BRANCH_NAME="master";
 	
 	public static final String GIT_DEFAULT_GIT_DIR_LOCATION="/.git";
 	
-	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="develop";
+	
+	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="master";//should be 'develop' 
+	
+	public static final String GIT_REFS_HEAD="HEAD";
 }

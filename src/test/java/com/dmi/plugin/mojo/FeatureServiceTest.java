@@ -1,13 +1,14 @@
-package com.dmi.plugin.unit;
+package com.dmi.plugin.mojo;
 
 import java.io.File;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.dmi.plugin.mojo.release.ReleaseStartMojo;
+import com.dmi.plugin.mojo.feature.FeatureStartMojo;
 
-public class ReleaseServiceTest extends AbstractMojoTestCase {
+public class FeatureServiceTest extends AbstractMojoTestCase {
 	private File pom;
 	/** {@inheritDoc} */
 	protected void setUp()
@@ -25,11 +26,12 @@ public class ReleaseServiceTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	public void testReleaseStart() throws Exception
+	@Ignore
+	public void testFeatureStart() throws Exception
 	{
-		ReleaseStartMojo releaseStartMojo = (ReleaseStartMojo) lookupMojo( "start", pom );
-		assertNotNull( releaseStartMojo );
-		//		releaseStartMojo.execute();
+		FeatureStartMojo featureStartMojo = (FeatureStartMojo) lookupMojo( "feature-start", pom );
+		assertNotNull( featureStartMojo );
+		featureStartMojo.execute();
 	}
 
 }
