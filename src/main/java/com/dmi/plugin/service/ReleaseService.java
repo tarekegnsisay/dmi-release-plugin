@@ -32,7 +32,7 @@ public class ReleaseService  extends AbstractApplicationService {
 			this.logger=logger;
 			LoggingUtils.logProject(project,logger);
 			
-			String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
+			String uri=ScmUtils.getScmUri(project.getScm());
 			String localPath=project.getBasedir().getAbsolutePath();
 			
 			this.logger.info("Inside release service:> uri:"+uri+" & localpath:"+localPath);
@@ -82,7 +82,7 @@ public class ReleaseService  extends AbstractApplicationService {
 		logger.info("Finishing release...");
 		LoggingUtils.logProject(project,logger);
 		
-		String uri=ScmUtils.getScmUri(project.getScm(),this.logger);
+		String uri=ScmUtils.getScmUri(project.getScm());
 		String localPath=project.getBasedir().getAbsolutePath();
 		scmService=new GitScmService(uri,localPath,userConfiguration);		
 		

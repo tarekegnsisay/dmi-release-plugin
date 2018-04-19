@@ -9,6 +9,9 @@ public class Constants {
 	public static final String GIT_DEFAULT_SRC_REF_SPEC="+refs/heads/*";
 	public static final String GIT_DEFAULT_DST_REF_SPEC="refs/remotes/origin/*";
 	
+	public static final String GIT_DEFAULT_SRC_TAGS_REF_SPEC="+refs/tags/*";
+	public static final String GIT_DEFAULT_DST_TAGS_REF_SPEC="refs/remotes/origin/tags/*";
+	
 	public static final String GIT_DEFAULT_REFS_HEADS="refs/heads/";
 	public static final String GIT_DEFAULT_REFS_REMOTES="refs/remotes/origin/";
 	

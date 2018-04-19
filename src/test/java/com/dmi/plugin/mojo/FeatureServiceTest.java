@@ -3,7 +3,6 @@ package com.dmi.plugin.mojo;
 import java.io.File;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.dmi.plugin.mojo.feature.FeatureStartMojo;
@@ -26,7 +25,6 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	@Ignore
 	public void testFeatureStart() throws Exception
 	{
 		FeatureStartMojo featureStartMojo = (FeatureStartMojo) lookupMojo( "feature-start", pom );

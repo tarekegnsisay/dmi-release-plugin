@@ -37,8 +37,14 @@ public class RepositoryAndCloneService {
 		}
 	}
 	public static boolean isGitRepo(String localPath) {	
-		boolean detected=RepositoryCache.FileKey.isGitRepository(new File(localPath), FS.DETECTED);
-		return detected;
+		boolean isDetected=RepositoryCache.FileKey.isGitRepository(new File(localPath+Constants.GIT_DEFAULT_GIT_DIR_LOCATION), FS.DETECTED);
+		if(isDetected) {
+			logger.info("directory: [ "+localPath+" ] is detected as git repository");
+		}
+		else {
+			logger.info("directory: [ "+localPath+" ] isn't a git repository");
+		}
+		return isDetected;
 	}
 
 	public static Repository initializeGitDirectory(String uri,String localPath) {
@@ -49,14 +55,7 @@ public class RepositoryAndCloneService {
 			setDefaultGitConfig(repository,uri);
 
 			logger.info("local directory [ "+localPath+" ] is initialized as git directory");
-		
-			/*
-			git.fetch().call();
-			git.branchCreate().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
-			.setStartPoint(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME+"/" + Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
-			.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM).call();
-			git.checkout().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME).call();
-			 */
+
 		}catch(Exception e) {
 			logger.error("exception while initializeGitDirectory: "+localPath+ " Message:"+e.getMessage());
 		}
@@ -126,7 +125,7 @@ public class RepositoryAndCloneService {
 					.call();
 			logger.info("Repo was sucessfully cloned to: "+localPath);
 		}catch (GitAPIException e) {
-			logger.error("unable to clone all branches: [ "+uri+" ]"+e.getMessage());
+			logger.error("unable to clone all branches: ["+uri+"] "+e.getMessage());
 		}
 		return git;
 	}
@@ -161,12 +160,37 @@ public class RepositoryAndCloneService {
 		return isExists;
 
 	}
+	public static boolean hasCommits(Repository repository) {
+		
+		boolean anyCommits=false;
+		
+		if(repository==null || !repository.getDirectory().exists()) {
+			return false;
+		}
+		else {
+
+			String[] uncompressedRefs=(new File(repository.getDirectory(),"objects")).list();
+			String[] compressedRefs=(new File(repository.getDirectory(),"objects/pack")).list();
+
+			if(uncompressedRefs!=null) {
+				anyCommits= uncompressedRefs.length>2?true:false;
+			}
+			if(anyCommits) {
+				return true;
+			}
+			if(compressedRefs!=null) {
+				return compressedRefs.length>0?true:false;
+			}
+		}
+		return false;
+	}
 	public static void setDefaultGitConfig(Repository repository, String uri) {
 		try {
 			StoredConfig config = repository.getConfig();
 			RemoteConfig remoteConfig = new RemoteConfig(config, Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME);
 			remoteConfig.addURI(new URIish(uri));
 			remoteConfig.addFetchRefSpec(new RefSpec(Constants.GIT_DEFAULT_SRC_REF_SPEC+":"+Constants.GIT_DEFAULT_DST_REF_SPEC));
+			remoteConfig.addFetchRefSpec(new RefSpec(Constants.GIT_DEFAULT_SRC_TAGS_REF_SPEC+":"+Constants.GIT_DEFAULT_DST_TAGS_REF_SPEC));
 			remoteConfig.update(config);
 			config.save();
 			logger.info("git configuration has been set up:\n "+config.toText());

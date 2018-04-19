@@ -1,18 +1,20 @@
 package com.dmi.plugin.service.git;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
-import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
 import com.dmi.plugin.util.UserConfiguration;
 
 public class GitScmService {
@@ -46,6 +48,10 @@ public class GitScmService {
 		return git;
 	}
 	
+	public UsernamePasswordCredentialsProvider getUserCredential() {
+		return userCredential;
+	}
+
 	public void stageFiles(String filePattern) throws NoFilepatternException, GitAPIException {
 		StagingService.stageFiles(git, filePattern);
 	}
@@ -57,19 +63,23 @@ public class GitScmService {
 	public void commitStagedFilesOnly(String commitMessage) {
 		CommitService.commitStagedFilesOnly(git,commitMessage);
 	}
-	public void createBranch(String branchName) {
-		BranchService.createBranch(git, branchName);
+	public boolean createBranch(String branchName) {
+		return BranchService.createBranch(git, branchName);
 
 	}
 
-	public void createAndPushBranch(String branchName) {
-		BranchService.createAndPushBranch(git, branchName, userCredential);
+	public boolean createAndPushBranch(String branchName) {
+		return BranchService.createAndPushBranch(git, branchName, userCredential);
 
 	}
-	public void createTag() throws ConcurrentRefUpdateException, InvalidTagNameException, NoHeadException, GitAPIException {
-		TagService.createTag(git);
+	public boolean createTag(ObjectId objectId,PersonIdent tagger, String tagName, String tagMessage) {
+		return TagService.createTag(git,userCredential,objectId,tagger,tagName,tagMessage);
+		
 	}
-
+	public boolean deleteTag(String tagName) {
+		return TagService.deleteTag(git,tagName,userCredential);
+		
+	}
 	public boolean deleteBranchFromLocal(String branchToDelete) {
 		return BranchService.deleteBranch(git, branchToDelete);
 	}
@@ -81,7 +91,9 @@ public class GitScmService {
 	public boolean checkoutBranch(String branchToCheckout) {
 		return BranchService.checkoutBranch(git, branchToCheckout);
 	}
-	
+	public List<String> getAllBranches(){
+		return BranchService.getAllBranches(git);
+	}
 	public void cloneAllBranches() {
 		
 		RepositoryAndCloneService.cloneAllBranches(uri, localPath);

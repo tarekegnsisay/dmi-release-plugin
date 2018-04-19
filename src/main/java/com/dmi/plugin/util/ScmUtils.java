@@ -1,12 +1,16 @@
 package com.dmi.plugin.util;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.model.Scm;
-import org.apache.maven.plugin.logging.Log;
 
 public class ScmUtils {
-	public static String getScmUri(Scm scm,Log logger) {
+	final static Logger logger = Logger.getLogger(ScmUtils.class);
+	public static String getScmUri(Scm scm) {
 		String uri="",scmConnection="";
 		if(scm!=null) {
+			/*
+			 * need more url validation logic here:-git ls-remote important here, more on this soon
+			 */
 			scmConnection=scm.getConnection();
 			scmConnection=scmConnection.trim();
 			int index=scmConnection.indexOf("https");

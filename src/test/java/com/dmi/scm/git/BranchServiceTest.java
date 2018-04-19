@@ -13,11 +13,14 @@ import java.util.List;
 
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import com.dmi.plugin.service.git.BranchService;
 import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.Constants;
 
@@ -42,7 +45,7 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 	@Test
 	public void testCreateBranch() throws IOException, GitAPIException {
 		
-		String newBranchName="newtestbranch1";
+		String newBranchName="newtestbranch-today";
 		scmService.createBranch(newBranchName);
 				
 		Ref newRef=git.getRepository().findRef(newBranchName);
@@ -80,7 +83,7 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 	@Test 
 	public void testDeleteCurrentBranch() throws IOException {
 		
-		String newBranchName="newbranch";
+		String newBranchName="newbranch-today";
 		scmService.createBranch(newBranchName);
 		boolean isDeleted=scmService.deleteBranchFromLocal(newBranchName);
 		
@@ -91,8 +94,14 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 		assertNull(newRef);
 	}
 	@Test
-	public void testDeleteBranchFromRemote() throws IOException {
-		String branchToDelete="feature/f-ababa";
+	public void testDeleteBranchFromRemote() throws IOException, InterruptedException {
+		
+
+		String branchToDelete="feature/f-branchToBeDeleted-today";
+		helperCreateAndPushBranch(branchToDelete);
+		
+		//Thread.sleep(2000);
+		
 		
 		boolean isDeleted=scmService.deleteBranchFromRemote(branchToDelete);
 		
@@ -104,8 +113,30 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 		
 	}
 	@Test
+	public void testGetAllBranches() {
+		List<String> branches=scmService.getAllBranches();
+		
+		long masterIsFound=branches.stream().filter(branch->branch.indexOf("master")>0).count();
+		
+		assertTrue(branches.size()>0);
+		assertTrue(masterIsFound>0);
+	}
+	@Test
+	@Ignore
+	public void testCompareBranch() {
+		scmService.checkoutBranch(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME);
+		
+		List<DiffEntry> diffs=BranchService.compareBranches(git, "master", "HEAD~10");
+		
+		assertNotNull(diffs);
+		assertTrue(diffs.size()>0);
+	}
+	@Test
 	public void testMergeBranch() {
 		
 	}
-
+	@Ignore
+	public void helperCreateAndPushBranch(String branchName) {
+		scmService.createAndPushBranch(branchName);
+	}
 }

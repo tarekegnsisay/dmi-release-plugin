@@ -18,7 +18,7 @@ public abstract class AbstractBaseScmTestSetup {
 	protected static UserConfiguration userConfiguration=new UserConfiguration();
 	
 	protected static String gitUsername="musema.hassen@gmail.com";
-	protected static String gitPassword="musads2025";
+	protected static String gitPassword="password1";
 	
 	protected  String uri="https://github.com/musema/plugin-test.git";
 	protected   String localPath="";
