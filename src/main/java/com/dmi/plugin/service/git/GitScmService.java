@@ -1,22 +1,21 @@
 package com.dmi.plugin.service.git;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
-import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
-import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.InvalidTagNameException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
 import com.dmi.plugin.util.UserConfiguration;
-
-
 
 public class GitScmService {
 	private String uri;
@@ -45,56 +44,79 @@ public class GitScmService {
 		this.git=new Git(this.repo);
 	}
 
-
-	public void stageFiles(String fileOrDirectoryPattern) throws NoFilepatternException, GitAPIException {
-		AddCommand add=this.git.add();
-		add.addFilepattern(fileOrDirectoryPattern).call();
+	public Git getGit() {
+		return git;
+	}
+	
+	public UsernamePasswordCredentialsProvider getUserCredential() {
+		return userCredential;
 	}
 
-	public void commitChanges(String commitMassage) {
-
-		CommitService.commitChanges(git, commitMassage);
+	public void stageFiles(String filePattern) throws NoFilepatternException, GitAPIException {
+		StagingService.stageFiles(git, filePattern);
 	}
 
-	public void createBranch(String branchName) {
-		BranchAndTagService.createBranch(git, branchName);
+	public void commitAllChangesToTackedFiles(String commitMassage) {
+
+		CommitService.commitAllChangesToTackedFiles(git, commitMassage);
+	}
+	public void commitStagedFilesOnly(String commitMessage) {
+		CommitService.commitStagedFilesOnly(git,commitMessage);
+	}
+	public boolean createBranch(String branchName) {
+		return BranchService.createBranch(git, branchName);
 
 	}
 
+	public boolean createAndPushBranch(String branchName) {
+		return BranchService.createAndPushBranch(git, branchName, userCredential);
 
-	public void createTag() throws ConcurrentRefUpdateException, InvalidTagNameException, NoHeadException, GitAPIException {
-		BranchAndTagService.createTag(git);
 	}
-
-	public boolean deleteBranch(String branchToDelete) {
-		return BranchAndTagService.deleteBranch(git, branchToDelete);
+	public boolean createTag(ObjectId objectId,PersonIdent tagger, String tagName, String tagMessage) {
+		return TagService.createTag(git,userCredential,objectId,tagger,tagName,tagMessage);
+		
 	}
+	public boolean deleteTag(String tagName) {
+		return TagService.deleteTag(git,tagName,userCredential);
+		
+	}
+	public boolean deleteBranchFromLocal(String branchToDelete) {
+		return BranchService.deleteBranch(git, branchToDelete);
+	}
+	
+	public boolean deleteBranchFromRemote(String branchToDelete) {
+		return BranchService.deleteBranchFromRemote(git, branchToDelete, userCredential);
+	}
+	
 	public boolean checkoutBranch(String branchToCheckout) {
-		return BranchAndTagService.checkoutBranch(git, branchToCheckout);
+		return BranchService.checkoutBranch(git, branchToCheckout);
 	}
-
-
+	public List<String> getAllBranches(){
+		return BranchService.getAllBranches(git);
+	}
 	public void cloneAllBranches() {
 		
 		RepositoryAndCloneService.cloneAllBranches(uri, localPath);
 	}
-	public Repository cloneRepo() {
-		return RepositoryAndCloneService.cloneRepo(uri, localPath);
+	
+	public Repository cloneRepository() {
+		return RepositoryAndCloneService.cloneRepository(uri, localPath);
 	}
-
-
+	
 	public Repository cloneSpecificBranch(String branchToClone) {
 		return RepositoryAndCloneService.cloneSpecificBranch(uri, localPath, branchToClone);
 	}
+	
 	public void checkoutCommit(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException{
-		CommitService.checkoutCommit(git, commitId);
+		BranchService.checkoutCommit(git, commitId);
 	}
 
 	public void checkoutCommit(String commitId, String checkoutToBranch) {
-		CommitService.checkoutCommit(git, commitId, checkoutToBranch);
+		BranchService.checkoutCommit(git, commitId, checkoutToBranch);
 	}
+	
 	public void pullRepo() {
-		PushAndPullService.pullRepo(git);
+		PullService.pullRepo(git);
 	}
 
 	public Repository createGitRepo() {
@@ -107,19 +129,17 @@ public class GitScmService {
 
 
 	public void pushNewBranch(String newBranchName) {
-		PushAndPullService.pushNewBranch(git, newBranchName, userCredential);
+		PushService.pushNewBranch(git, newBranchName, userCredential);
 	}
+	
 	public boolean isBranchExists(String branchName){
-		return BranchAndTagService.isBranchExists(git, branchName);
+		return BranchService.isBranchExists(git, branchName);
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void setUpStream(String branchName) {
-		BranchAndTagService.setUpStream(git, branchName);
+		BranchService.setUpStream(git, branchName);
 
 	}
-
-
-
 
 }

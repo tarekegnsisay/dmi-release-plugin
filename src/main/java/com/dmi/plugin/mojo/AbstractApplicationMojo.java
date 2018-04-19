@@ -20,13 +20,14 @@ public abstract class AbstractApplicationMojo extends AbstractMojo {
 	@Parameter(defaultValue="${userConfiguration}")
 	protected UserConfiguration userConfiguration;
 	
+	
 	@Component
 	protected Prompter prompt;
 	
 	public String promptUser(String message) {
 		String response="";
 		try {
-			response=prompt.prompt(message);
+			response=prompt.prompt(message,"\n");
 		} catch (PrompterException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

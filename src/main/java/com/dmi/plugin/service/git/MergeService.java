@@ -27,7 +27,7 @@ public class MergeService {
 				logger.error(mergeResult.getConflicts().toString());
 			}
 			else if(status.isSuccessful()){
-				BranchAndTagService.deleteBranch(git, source);
+				BranchService.deleteBranch(git, source);
 				
 			}
 		}  catch (GitAPIException | IOException e) {

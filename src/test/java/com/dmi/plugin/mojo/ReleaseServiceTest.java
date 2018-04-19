@@ -1,12 +1,14 @@
-package com.dmi.plugin.unit;
+package com.dmi.plugin.mojo;
 
 import java.io.File;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class PomFileTest extends AbstractMojoTestCase {
+import com.dmi.plugin.mojo.release.ReleaseStartMojo;
 
+public class ReleaseServiceTest extends AbstractMojoTestCase {
 	private File pom;
 	/** {@inheritDoc} */
 	protected void setUp()
@@ -24,15 +26,12 @@ public class PomFileTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	public void testPomIsNotNull() throws Exception
+	@Ignore
+	public void testReleaseStart() throws Exception
 	{
-		assertNotNull( pom );             
-	}
-
-	@Test
-	public void testPomExists() throws Exception
-	{       
-		assertTrue( pom.exists() );
+		ReleaseStartMojo releaseStartMojo = (ReleaseStartMojo) lookupMojo( "start", pom );
+		assertNotNull( releaseStartMojo );
+		//		releaseStartMojo.execute();
 	}
 
 }

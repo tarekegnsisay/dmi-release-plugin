@@ -17,10 +17,10 @@ public class FeatureService extends AbstractApplicationService{
 
 	public FeatureService() {}
 
-	public boolean createFeature(MavenProject project,String featureName,Log logger) {
+	public boolean createFeature(MavenProject project,String featureName) {
 		boolean status=true;
 		String baseDevBranch=scmBranchingConfiguration.getDevelopmentBranch();
-		String uri=ScmUtils.getScmUri(project.getScm(),logger);
+		String uri=ScmUtils.getScmUri(project.getScm());
 		String localPath=project.getBasedir().getAbsolutePath();
 		
 		

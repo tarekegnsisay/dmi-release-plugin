@@ -1,13 +1,12 @@
-package com.dmi.plugin.unit;
+package com.dmi.plugin.mojo;
 
 import java.io.File;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Test;
 
-import com.dmi.plugin.mojo.feature.FeatureStartMojo;
+public class PomFileTest extends AbstractMojoTestCase {
 
-public class FeatureServiceTest extends AbstractMojoTestCase {
 	private File pom;
 	/** {@inheritDoc} */
 	protected void setUp()
@@ -25,11 +24,15 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	public void testFeatureStart() throws Exception
+	public void testPomIsNotNull() throws Exception
 	{
-		FeatureStartMojo featureStartMojo = (FeatureStartMojo) lookupMojo( "feature-start", pom );
-		assertNotNull( featureStartMojo );
-		featureStartMojo.execute();
+		assertNotNull( pom );             
+	}
+
+	@Test
+	public void testPomExists() throws Exception
+	{       
+		assertTrue( pom.exists() );
 	}
 
 }
