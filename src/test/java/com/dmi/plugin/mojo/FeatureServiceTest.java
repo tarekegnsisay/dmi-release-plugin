@@ -6,6 +6,7 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Test;
 
 import com.dmi.plugin.mojo.feature.FeatureStartMojo;
+import com.dmi.plugin.mojo.feature.PublishFeatureMojo;
 
 public class FeatureServiceTest extends AbstractMojoTestCase {
 	private File pom;
@@ -25,11 +26,18 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 
 	}
 	@Test
-	public void testFeatureStart() throws Exception
+	public void testStartFeature() throws Exception
 	{
 		FeatureStartMojo featureStartMojo = (FeatureStartMojo) lookupMojo( "feature-start", pom );
 		assertNotNull( featureStartMojo );
 		featureStartMojo.execute();
+	}
+	@Test
+	public void testPublishFeature() throws Exception
+	{
+		PublishFeatureMojo publishFeatureMojo = (PublishFeatureMojo) lookupMojo( "feature-publish", pom );
+		assertNotNull( publishFeatureMojo );
+		publishFeatureMojo.execute();
 	}
 
 }

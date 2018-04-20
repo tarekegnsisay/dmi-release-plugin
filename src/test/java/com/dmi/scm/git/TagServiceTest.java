@@ -31,7 +31,7 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 		scmService=new GitScmService(uri,localPath,userConfiguration);
 		git=scmService.getGit();
 
-		tagName="v2.0.0";
+		tagName="alvaro";
 		tagMessage="This a tag is created at: "+new Date().toString();
 		tagger=new PersonIdent("musema","mhassen@dminc.com");
 
@@ -43,8 +43,8 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 	}
 	@Test
 	public void testTagMasterBranch() throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
-		tagName+="T-tr";
-		scmService.checkoutBranch(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME);
+		tagName+="-1.0.1-diaz";
+		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH);
 
 		ObjectId objectId=git.getRepository().resolve((Constants.GIT_REFS_HEAD));
 
@@ -72,7 +72,7 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 	public void testTagOneCommitBeforeCurrentMaster() throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
 		
 		tagName+="T3";
-		scmService.checkoutBranch(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME);
+		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH);
 		ObjectId objectId=git.getRepository().resolve(Constants.GIT_REFS_HEAD+"~1");
 
 		boolean isCreated=scmService.createTag(objectId, tagger, tagName, tagMessage);
@@ -87,7 +87,7 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 		
 		tagName+="T4";
 
-		scmService.checkoutBranch(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME);
+		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH);
 
 		ObjectId objectId=git.getRepository().resolve((Constants.GIT_REFS_HEAD));
 

@@ -38,14 +38,15 @@
 					<project implementation="com.dmi.plugin.stub.ProjectStub" />
 					<scmBranchingConfiguration
 						implementation="com.dmi.plugin.util.ScmBranchingConfiguration">
-						<productionBranch>master</productionBranch>
+						<masterBranch>master</masterBranch>
 						<developmentBranch>develop</developmentBranch>
-						<releaseBranchPrefix>release-</releaseBranchPrefix>
+						<releaseBranchPrefix>release/</releaseBranchPrefix>
 						<featureBranchPrefix>feature/</featureBranchPrefix>
+						<hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
 					</scmBranchingConfiguration>
 					<userConfiguration>
 						<gitUsername>musema.hassen@gmail.com</gitUsername>
-						<gitPassword>password</gitPassword>
+						<gitPassword>musads2025</gitPassword>
 					</userConfiguration>
 				</configuration>
 				<executions>

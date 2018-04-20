@@ -11,7 +11,7 @@ import com.dmi.plugin.util.ScmBranchingConfiguration;
 import com.dmi.plugin.util.UserConfiguration;
 
 public abstract class AbstractApplicationMojo extends AbstractMojo {
-	@Component
+	@Parameter(defaultValue="${project}",readonly=true)
 	protected MavenProject project;
 	
 	@Parameter(defaultValue="${scmBranchingConfiguration}")
@@ -27,10 +27,9 @@ public abstract class AbstractApplicationMojo extends AbstractMojo {
 	public String promptUser(String message) {
 		String response="";
 		try {
-			response=prompt.prompt(message,"\n");
+			response=prompt.prompt(message);
 		} catch (PrompterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			getLog().error(e.getMessage());
 		}
 		return response;
 	}

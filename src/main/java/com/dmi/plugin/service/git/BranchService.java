@@ -98,7 +98,28 @@ public class BranchService {
 		}
 		return true;
 	}
+public static boolean publishBranch(Git git,String branchName,UsernamePasswordCredentialsProvider userCredential) {
+	if (!isBranchExists(git, branchName)) {
+		logger.error("branch doesn't exists, unable to publish [" + branchName + "]");
+		return false;
+	}
+	
+	try {
+		setUpStream(git, branchName);
+		git.checkout().setName(branchName).call();
+		Iterable<PushResult> pushResults = git.push().setRemote(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME)
+				.setCredentialsProvider(userCredential).call();
 
+		for (PushResult pushResult : pushResults) {
+			logger.info("push result message:" + pushResult.getMessages());
+		}
+
+	} catch (Exception e) {
+		logger.error("unable to publish branch: [ " + branchName + " ]" + e.getMessage());
+		return false;
+	}
+	return true;
+}
 	public static void checkoutCommit(Git git, String commitId) {
 		try {
 			git.checkout().setStartPoint(commitId).call();
