@@ -16,7 +16,7 @@ public class HotfixFinishMojo extends AbstractApplicationMojo{
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("finishing hotfix branch...");
 
-		getLog().info(scmBranchingConfiguration.getHotFixBranchPrefix());
+		getLog().info(scmBranchingConfiguration.getHotfixBranchPrefix());
 
 		hotFixService.finishHotfix(project,getLog());
 

@@ -15,12 +15,23 @@ public class Constants {
 	public static final String GIT_DEFAULT_REFS_HEADS="refs/heads/";
 	public static final String GIT_DEFAULT_REFS_REMOTES="refs/remotes/origin/";
 	
-	public static final String GIT_DEFAULT_MASTER_BRANCH_NAME="master";
+	
 	
 	public static final String GIT_DEFAULT_GIT_DIR_LOCATION="/.git";
 	
 	
-	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="master";//should be 'develop' 
 	
 	public static final String GIT_REFS_HEAD="HEAD";
+	
+	/*
+	 * scm branching defaults
+	 */
+	public static final String WORKFLOW_DEFAULT_MASTER_BRANCH="master";
+	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="master";//should be 'develop' 
+	
+	public static final String WORKFLOW_DEFAULT_FEATURE_BRANCH_PREFIX="feature/";
+	public static final String WORKFLOW_DEFAULT_RELEASE_BRANCH_PREFIX="release/";
+	public static final String WORKFLOW_DEFAULT_HOTFIX_BRANCH_PREFIX="hotfix/";
+	public static final String WORKFLOW_DEFAULT_TAG_PREFIX="v";
+	
 }

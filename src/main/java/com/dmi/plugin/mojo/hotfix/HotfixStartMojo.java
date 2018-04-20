@@ -15,7 +15,7 @@ public class HotfixStartMojo extends AbstractApplicationMojo{
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("Creating hotfix branch...");
-		getLog().info(scmBranchingConfiguration.getHotFixBranchPrefix());
+		getLog().info(scmBranchingConfiguration.getHotfixBranchPrefix());
 		
 		hotFixService.createHotFix(project,getLog());
 		

@@ -124,7 +124,7 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 	@Test
 	@Ignore
 	public void testCompareBranch() {
-		scmService.checkoutBranch(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME);
+		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH);
 		
 		List<DiffEntry> diffs=BranchService.compareBranches(git, "master", "HEAD~10");
 		

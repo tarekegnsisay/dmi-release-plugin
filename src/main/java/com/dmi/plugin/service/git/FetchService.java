@@ -11,10 +11,10 @@ public class FetchService {
 	public static void fetch(Git git) {
 		try {
 			git.fetch().call();
-			git.branchCreate().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
-			.setStartPoint(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME+"/" + Constants.GIT_DEFAULT_MASTER_BRANCH_NAME)
+			git.branchCreate().setName(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH)
+			.setStartPoint(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME+"/" + Constants.WORKFLOW_DEFAULT_MASTER_BRANCH)
 			.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM).call();
-			git.checkout().setName(Constants.GIT_DEFAULT_MASTER_BRANCH_NAME).call();	
+			git.checkout().setName(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH).call();	
 		} catch(Exception e) {
 			logger.error("error while fetching..."+e.getMessage());
 		}

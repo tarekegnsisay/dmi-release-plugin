@@ -10,7 +10,7 @@ public class HotfixService extends AbstractApplicationService{
 		 * Compute hotfix branch name and call super
 		 */
 		String hotFixBranchName="hotfix-branch-name";
-		createBranch(hotFixBranchName);
+		//createBranch(hotFixBranchName);
 	}
 
 	public void finishHotfix(MavenProject project, Log log) {

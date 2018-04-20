@@ -5,62 +5,84 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import com.dmi.plugin.service.git.GitScmService;
+import com.dmi.plugin.util.Constants;
 import com.dmi.plugin.util.ScmBranchingConfiguration;
 import com.dmi.plugin.util.ScmUtils;
 import com.dmi.plugin.util.UserConfiguration;
 
-public class FeatureService extends AbstractApplicationService{
+public class FeatureService extends AbstractApplicationService {
+
 	final static Logger logger = Logger.getLogger(FeatureService.class);
+
 	public FeatureService(ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
-		super(scmBranchingConfiguration,userConfiguration);
+		super(scmBranchingConfiguration, userConfiguration);
 	}
 
-	public FeatureService() {}
+	public FeatureService() {
+	}
 
-	public boolean createFeature(MavenProject project,String featureName) {
-		boolean status=true;
-		String baseDevBranch=scmBranchingConfiguration.getDevelopmentBranch();
-		String uri=ScmUtils.getScmUri(project.getScm());
-		String localPath=project.getBasedir().getAbsolutePath();
-		
-		
-		String newFeatureName=getNewFeatureName(scmBranchingConfiguration.getFeatureBranchPrefix(),featureName);
-		
-		
+	public boolean createFeature(MavenProject project, String featureName) {
+		String baseDevBranch = scmBranchingConfiguration.getDevelopmentBranch();
+		String uri = ScmUtils.getScmUri(project.getScm());
+		String localPath = project.getBasedir().getAbsolutePath();
+
+		String newFeatureName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
+
 		try {
-			scmService=new GitScmService(uri,localPath,userConfiguration);
-			
-			boolean branchExists=scmService.isBranchExists(newFeatureName);
-			if(branchExists) {
-				logger.error("Branch with name [ "+newFeatureName+ "  ] exists");
+			scmService = new GitScmService(uri, localPath, userConfiguration);
+
+			boolean branchExists = scmService.isBranchExists(newFeatureName);
+			if (branchExists) {
+				logger.error("Branch with name [" + newFeatureName + "] already exists");
 				return false;
 			}
-			
+
 			scmService.checkoutBranch(baseDevBranch);
 			scmService.createBranch(newFeatureName);
 			scmService.checkoutBranch(newFeatureName);
-			scmService.pushNewBranch(newFeatureName);
+			/*
+			 * we won't publish/push it unless for sharing
+			 */
+		} catch (Exception e) {
+			logger.error("error occured while creating a feature, with name: [" + featureName + "]");
+			return false;
 		}
-		finally {
-
-		}
-		return status;
+		return true;
 	}
+	public boolean publishFeature(MavenProject project, String featureName) {
 
+		String uri = ScmUtils.getScmUri(project.getScm());
+		String localPath = project.getBasedir().getAbsolutePath();
+
+		String featureFullName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
+
+		try {
+			userConfiguration.setGitUsername("musema.hassen@gmail.com");
+			userConfiguration.setGitPassword("musads2555");
+			scmService = new GitScmService(uri, localPath, userConfiguration);
+			boolean isPublished=scmService.publishBranch(featureFullName);
+			if(isPublished) {
+				logger.info("feature is published, you can tell others to contribute to it.");
+			}
+			else{
+				logger.error("error occured while publishin a feature, with name: [" + featureFullName + "]");
+				return false;
+			}
+			
+		} catch (Exception e) {
+			logger.error("error occured while publishing a feature, with name: [" + featureFullName + "]");
+			return false;
+		}
+		return true;
+	}
 	public void finishFeature(MavenProject project, String featureName, Log log) {
-		// TODO Auto-generated method stub
+		
 
 	}
-	public String getNewFeatureName(String prefix, String featureName) {
-		String featurePrefix="feature-";
-		featurePrefix=prefix==null?"feature/":prefix;
-		/*
-		 * TBD
-		 */
-		String newFeatureName=featurePrefix+featureName;
-		/*
-		 * check if the a branch with this name exists
-		 */
+
+	public String getFullNameOfFeature(String prefix, String featureName) {
+		String featurePrefix = prefix == null ? Constants.WORKFLOW_DEFAULT_FEATURE_BRANCH_PREFIX : prefix;
+		String newFeatureName = featurePrefix + featureName;
 		return newFeatureName;
 	}
 

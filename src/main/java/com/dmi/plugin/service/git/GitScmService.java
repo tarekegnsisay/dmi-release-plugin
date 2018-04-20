@@ -128,8 +128,11 @@ public class GitScmService {
 	}
 
 
-	public void pushNewBranch(String newBranchName) {
-		PushService.pushNewBranch(git, newBranchName, userCredential);
+	public boolean pushNewBranch(String newBranchName) {
+		return PushService.pushNewBranch(git, newBranchName, userCredential);
+	}
+	public boolean publishBranch(String branchName) {
+		return BranchService.publishBranch(git, branchName, userCredential);
 	}
 	
 	public boolean isBranchExists(String branchName){

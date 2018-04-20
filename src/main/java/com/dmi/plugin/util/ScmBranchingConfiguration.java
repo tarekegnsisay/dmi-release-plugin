@@ -1,21 +1,21 @@
 package com.dmi.plugin.util;
 
 public class ScmBranchingConfiguration {
-	private String productionBranch;
+	private String masterBranch;
 	private String developmentBranch;
 	private String releaseBranchPrefix;
 	private String featureBranchPrefix;
-	private String hotFixBranchPrefix;
-	private String versionPrefix;
+	private String hotfixBranchPrefix;
+	private String tagPrefix;
 	
 	public ScmBranchingConfiguration(){
 		
 	}
-	public String getProductionBranch() {
-		return productionBranch;
+	public String getMasterBranch() {
+		return masterBranch;
 	}
-	public void setProductionBranch(String productionBranch) {
-		this.productionBranch = productionBranch;
+	public void setMasterBranch(String masterBranch) {
+		this.masterBranch = masterBranch;
 	}
 	public String getDevelopmentBranch() {
 		return developmentBranch;
@@ -35,17 +35,17 @@ public class ScmBranchingConfiguration {
 	public void setFeatureBranchPrefix(String featureBranchPrefix) {
 		this.featureBranchPrefix = featureBranchPrefix;
 	}
-	public String getHotFixBranchPrefix() {
-		return hotFixBranchPrefix;
+	public String getHotfixBranchPrefix() {
+		return hotfixBranchPrefix;
 	}
-	public void setHotFixBranchPrefix(String hotFixBranchPrefix) {
-		this.hotFixBranchPrefix = hotFixBranchPrefix;
+	public void setHotfixBranchPrefix(String hotfixBranchPrefix) {
+		this.hotfixBranchPrefix = hotfixBranchPrefix;
 	}
-	public String getVersionPrefix() {
-		return versionPrefix;
+	public String getTagPrefix() {
+		return tagPrefix;
 	}
-	public void setVersionPrefix(String versionPrefix) {
-		this.versionPrefix = versionPrefix;
+	public void setTagPrefix(String tagPrefix) {
+		this.tagPrefix = tagPrefix;
 	}
 	
 
