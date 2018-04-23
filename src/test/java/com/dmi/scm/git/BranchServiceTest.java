@@ -3,10 +3,7 @@
  */
 package com.dmi.scm.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -94,23 +91,29 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 		assertNull(newRef);
 	}
 	@Test
-	public void testDeleteBranchFromRemote() throws IOException, InterruptedException {
+	public void testDeleteBranchFromRemote() throws IOException, InterruptedException, GitAPIException {
 		
 
-		String branchToDelete="feature/f-branchToBeDeleted-today";
+		String branchToDelete="feature/gone";
+		String branchToLive="feature/alive";
+		
 		helperCreateAndPushBranch(branchToDelete);
-		
-		//Thread.sleep(2000);
-		
-		
+		helperCreateAndPushBranch(branchToLive);
+				
 		boolean isDeleted=scmService.deleteBranchFromRemote(branchToDelete);
 		
+		boolean amIAlive=scmService.isBranchExistsInRemote(branchToLive);
+		boolean amIGone=scmService.isBranchExistsInRemote(branchToDelete);
+		
 		assertTrue(isDeleted);
+		assertTrue(amIAlive);
+		assertFalse(amIGone);
 		
-		Ref newRef=git.getRepository().findRef(branchToDelete);
+		isDeleted=scmService.deleteBranchFromRemote(branchToLive);
+		amIAlive=scmService.isBranchExistsInRemote(branchToLive);
 		
-		assertNull(newRef);
-		
+		assertTrue(isDeleted);
+		assertFalse(amIAlive);
 	}
 	@Test
 	public void testGetAllBranches() {

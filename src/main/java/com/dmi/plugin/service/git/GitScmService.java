@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
@@ -23,7 +24,7 @@ public class GitScmService {
 	private Repository repo;
 	private Git git;
 	final UsernamePasswordCredentialsProvider userCredential;
-	
+
 	final static Logger logger = Logger.getLogger(GitScmService.class);
 
 
@@ -47,7 +48,7 @@ public class GitScmService {
 	public Git getGit() {
 		return git;
 	}
-	
+
 	public UsernamePasswordCredentialsProvider getUserCredential() {
 		return userCredential;
 	}
@@ -74,39 +75,43 @@ public class GitScmService {
 	}
 	public boolean createTag(ObjectId objectId,PersonIdent tagger, String tagName, String tagMessage) {
 		return TagService.createTag(git,userCredential,objectId,tagger,tagName,tagMessage);
-		
+
 	}
 	public boolean deleteTag(String tagName) {
 		return TagService.deleteTag(git,tagName,userCredential);
-		
+
 	}
 	public boolean deleteBranchFromLocal(String branchToDelete) {
-		return BranchService.deleteBranch(git, branchToDelete);
+		return BranchService.deleteBranchFromLocal(git, branchToDelete);
 	}
-	
+
 	public boolean deleteBranchFromRemote(String branchToDelete) {
 		return BranchService.deleteBranchFromRemote(git, branchToDelete, userCredential);
 	}
-	
+
 	public boolean checkoutBranch(String branchToCheckout) {
 		return BranchService.checkoutBranch(git, branchToCheckout);
 	}
-	public List<String> getAllBranches(){
-		return BranchService.getAllBranches(git);
-	}
-	public void cloneAllBranches() {
-		
-		RepositoryAndCloneService.cloneAllBranches(uri, localPath);
+	public boolean checkoutRemoteBranch(String branchToCheckout) {
+		return BranchService.checkoutRemoteBranch(git, branchToCheckout);
 	}
 	
+	public List<String> getAllBranches(){
+		return BranchService.getAllBranches(git,ListMode.ALL);
+	}
+	public void cloneAllBranches() {
+
+		RepositoryAndCloneService.cloneAllBranches(uri, localPath);
+	}
+
 	public Repository cloneRepository() {
 		return RepositoryAndCloneService.cloneRepository(uri, localPath);
 	}
-	
+
 	public Repository cloneSpecificBranch(String branchToClone) {
 		return RepositoryAndCloneService.cloneSpecificBranch(uri, localPath, branchToClone);
 	}
-	
+
 	public void checkoutCommit(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException{
 		BranchService.checkoutCommit(git, commitId);
 	}
@@ -114,7 +119,7 @@ public class GitScmService {
 	public void checkoutCommit(String commitId, String checkoutToBranch) {
 		BranchService.checkoutCommit(git, commitId, checkoutToBranch);
 	}
-	
+
 	public void pullRepo() {
 		PullService.pullRepo(git);
 	}
@@ -126,19 +131,24 @@ public class GitScmService {
 	public void mergeAndDeleteBranches(String destination, String source) {
 		MergeService.mergeAndDeleteBranches(git, destination, source);
 	}
+	
+	public boolean mergeBranches(String destination, String source,String mergeMessage){
+		return MergeService.mergeBranches(git, destination, source,mergeMessage);
+	}
 
-
-	public boolean pushNewBranch(String newBranchName) {
-		return PushService.pushNewBranch(git, newBranchName, userCredential);
+	public boolean pushBranch(String branchName) {
+		return PushService.pushBranch(git, branchName, userCredential);
 	}
 	public boolean publishBranch(String branchName) {
 		return BranchService.publishBranch(git, branchName, userCredential);
 	}
-	
+
 	public boolean isBranchExists(String branchName){
-		return BranchService.isBranchExists(git, branchName);
+		return BranchService.isBranchExists(git, branchName,ListMode.ALL);
 	}
-	
+	public boolean isBranchExistsInRemote(String branchName){
+		return BranchService.isBranchExists(git, branchName,ListMode.REMOTE);
+	}
 	@SuppressWarnings("unused")
 	private void setUpStream(String branchName) {
 		BranchService.setUpStream(git, branchName);

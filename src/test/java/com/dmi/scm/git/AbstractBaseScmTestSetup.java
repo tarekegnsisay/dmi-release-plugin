@@ -18,12 +18,12 @@ public abstract class AbstractBaseScmTestSetup {
 	protected static UserConfiguration userConfiguration=new UserConfiguration();
 	
 	protected static String gitUsername="musema.hassen@gmail.com";
-	protected static String gitPassword="musads2555";
+	protected static String gitPassword="my pass was her :)";
 	
 	protected  String uri="https://github.com/musema/plugin-test.git";
 	protected   String localPath="";
 	
-	static Git git=null;
+	protected static Git git=null;
 	
 	RevWalk revWalk=null;
 	

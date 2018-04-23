@@ -30,9 +30,10 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 		localPath=tempFolder.newFolder("gitarea").getAbsolutePath();
 		scmService=new GitScmService(uri,localPath,userConfiguration);
 		git=scmService.getGit();
-
-		tagName="alvaro";
-		tagMessage="This a tag is created at: "+new Date().toString();
+		
+		tagger=new PersonIdent("musema","mhassen@dminc.com");
+		tagName="tag";
+		tagMessage="This a tag is created at: "+new Date().toString()+" created by "+tagger.toString();
 		tagger=new PersonIdent("musema","mhassen@dminc.com");
 
 	}
@@ -43,7 +44,7 @@ public class TagServiceTest extends AbstractBaseScmTestSetup{
 	}
 	@Test
 	public void testTagMasterBranch() throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
-		tagName+="-1.0.1-diaz";
+		tagName+="-3.0.0-diaz";
 		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_MASTER_BRANCH);
 
 		ObjectId objectId=git.getRepository().resolve((Constants.GIT_REFS_HEAD));

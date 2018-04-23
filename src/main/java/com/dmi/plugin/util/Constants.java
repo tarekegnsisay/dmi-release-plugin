@@ -27,7 +27,7 @@ public class Constants {
 	 * scm branching defaults
 	 */
 	public static final String WORKFLOW_DEFAULT_MASTER_BRANCH="master";
-	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="master";//should be 'develop' 
+	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="develop";
 	
 	public static final String WORKFLOW_DEFAULT_FEATURE_BRANCH_PREFIX="feature/";
 	public static final String WORKFLOW_DEFAULT_RELEASE_BRANCH_PREFIX="release/";

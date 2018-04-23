@@ -1,7 +1,6 @@
 package com.dmi.plugin.service;
 
 import org.apache.log4j.Logger;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import com.dmi.plugin.service.git.GitScmService;
@@ -49,6 +48,7 @@ public class FeatureService extends AbstractApplicationService {
 		}
 		return true;
 	}
+
 	public boolean publishFeature(MavenProject project, String featureName) {
 
 		String uri = ScmUtils.getScmUri(project.getScm());
@@ -57,27 +57,49 @@ public class FeatureService extends AbstractApplicationService {
 		String featureFullName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
 
 		try {
-			userConfiguration.setGitUsername("musema.hassen@gmail.com");
-			userConfiguration.setGitPassword("musads2555");
 			scmService = new GitScmService(uri, localPath, userConfiguration);
-			boolean isPublished=scmService.publishBranch(featureFullName);
-			if(isPublished) {
+			boolean isPublished = scmService.publishBranch(featureFullName);
+			if (isPublished) {
 				logger.info("feature is published, you can tell others to contribute to it.");
-			}
-			else{
+			} else {
 				logger.error("error occured while publishin a feature, with name: [" + featureFullName + "]");
 				return false;
 			}
-			
+
 		} catch (Exception e) {
 			logger.error("error occured while publishing a feature, with name: [" + featureFullName + "]");
 			return false;
 		}
 		return true;
 	}
-	public void finishFeature(MavenProject project, String featureName, Log log) {
-		
 
+	public boolean finishFeature(MavenProject project, String featureName) {
+
+		String featureFullName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
+
+		scmService.checkoutBranch(Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH);
+
+		String mergeMessage = "merging feature [" + featureName + "] to development stream before finishing";
+
+		boolean isSuccessful = scmService.mergeBranches(Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH, featureFullName,
+				mergeMessage);
+		if (!isSuccessful) {
+			logger.info("merge was not successful, workflow couldn't be completed.");
+			return false;
+		}
+		boolean isDeletedFromLocal = scmService.deleteBranchFromLocal(featureFullName);
+		if (!isDeletedFromLocal) {
+			logger.error("something went wrong while deleting feature branch:[" + featureFullName + "] from local");
+			return false;
+		}
+		boolean isDeletedFromRemote = scmService.deleteBranchFromRemote(featureFullName);
+		if (!isDeletedFromRemote) {
+			logger.error("something went wrong while deleting feature branch:[" + featureFullName + "] from remote");
+			return false;
+		}
+		logger.info(" feature finished, now [" + featureFullName + "] branch is merged in to ["
+				+ Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH + "] and deleted from local and remote repositories.");
+		return true;
 	}
 
 	public String getFullNameOfFeature(String prefix, String featureName) {
