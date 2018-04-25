@@ -33,7 +33,10 @@ public class RepositoryAndCloneService {
 			return cloneRepository(uri,localPath);
 		}
 		else {
-			return getExistingLocalGitRepo(localPath);
+
+			Repository repository= getExistingLocalGitRepo(localPath);
+			setDefaultGitConfig(repository,uri);
+			return repository;
 		}
 	}
 	public static boolean isGitRepo(String localPath) {	
@@ -161,9 +164,9 @@ public class RepositoryAndCloneService {
 
 	}
 	public static boolean hasCommits(Repository repository) {
-		
+
 		boolean anyCommits=false;
-		
+
 		if(repository==null || !repository.getDirectory().exists()) {
 			return false;
 		}

@@ -65,13 +65,23 @@ public class BranchServiceTest extends AbstractBaseScmTestSetup {
 	public void testCreateAndPushBranch() throws IOException {
 		
 		String newBranchName="feature/f-ababa";
-		scmService.createAndPushBranch(newBranchName);
-				
+		boolean isCreated=scmService.createAndPushBranch(newBranchName);
+		assertTrue(isCreated);		
 		Ref newRef=git.getRepository().findRef(newBranchName);
 		
 		assertNotNull(newRef);
 		assertNotNull(newRef.getObjectId());
 		
+	}
+	@Test 
+	public void testCreateHotfixBranchFromTag(){
+		String tagName="v2.0.0";
+		String hotfixBranchName="hotfix/v2.0.0";
+		scmService.createHotfixBranchFromTag(hotfixBranchName, tagName);
+		
+		boolean isExists=scmService.isBranchExists(hotfixBranchName);
+		assertTrue(isExists);
+		scmService.publishBranch(hotfixBranchName);
 	}
 	@Test 
 	public void testCheckoutBranch() {

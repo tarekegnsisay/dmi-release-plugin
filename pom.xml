@@ -95,8 +95,6 @@
 			<version>1.7.5</version>
 		</dependency>
 
-
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
@@ -109,7 +107,6 @@
 			<version>3.0.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-interactivity-api -->
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interactivity-api</artifactId>
@@ -147,7 +144,7 @@
 							<phase>process-classes</phase>
 							<goals>
 								<goal>descriptor</goal>
-								
+
 							</goals>
 						</execution>
 						<execution>
@@ -163,10 +160,12 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.19.1</version>
 					<configuration>
-						<testFailureIgnore>false</testFailureIgnore>
+						<testFailureIgnore>true</testFailureIgnore>
 						<systemPropertyVariables>
 
 						</systemPropertyVariables>
+						<reuseForks>true</reuseForks>
+						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
 					</configuration>
 
 					<dependencies>

@@ -13,24 +13,24 @@ import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.UserConfiguration;
 
 public abstract class AbstractBaseScmTestSetup {
-	
-	protected static GitScmService scmService=null;
-	protected static UserConfiguration userConfiguration=new UserConfiguration();
-	
-	protected static String gitUsername="musema.hassen@gmail.com";
-	protected static String gitPassword="my pass was her :)";
-	
-	protected  String uri="https://github.com/musema/plugin-test.git";
-	protected   String localPath="";
-	
-	protected static Git git=null;
-	
-	RevWalk revWalk=null;
-	
-	FileWriter fileWriter=null;
+
+	protected static GitScmService scmService = null;
+	protected static UserConfiguration userConfiguration = new UserConfiguration();
+
+	protected static String gitUsername = "musema.hassen@gmail.com";
+	protected static String gitPassword = "my pass was her :)";
+
+	protected String uri = "https://github.com/musema/plugin-test.git";
+	protected String localPath = "";
+
+	protected static Git git = null;
+
+	RevWalk revWalk = null;
+
+	FileWriter fileWriter = null;
 	@Rule
 	public TemporaryFolder tempFolder = new TemporaryFolder();
-	
+
 	static {
 		userConfiguration.setGitUsername(gitUsername);
 		userConfiguration.setGitPassword(gitPassword);
@@ -38,12 +38,12 @@ public abstract class AbstractBaseScmTestSetup {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-	
+
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		
+
 	}
 
 }

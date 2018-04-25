@@ -17,8 +17,8 @@ import com.dmi.plugin.util.UserConfiguration;
 public class ReleaseService  extends AbstractApplicationService {
 	private Log logger;
 	
-	public ReleaseService(ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
-		super(scmBranchingConfiguration,userConfiguration);
+	public ReleaseService(MavenProject mavenProject,ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
+		super(mavenProject,scmBranchingConfiguration,userConfiguration);
 	}
 
 	public ReleaseService() {}

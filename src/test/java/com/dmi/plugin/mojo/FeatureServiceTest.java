@@ -6,8 +6,8 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Test;
 
 import com.dmi.plugin.mojo.feature.FeatureStartMojo;
-import com.dmi.plugin.mojo.feature.FinishFeatureMojo;
-import com.dmi.plugin.mojo.feature.PublishFeatureMojo;
+import com.dmi.plugin.mojo.feature.FeatureFinishMojo;
+import com.dmi.plugin.mojo.feature.FeaturePublishMojo;
 
 public class FeatureServiceTest extends AbstractMojoTestCase {
 	private File pom;
@@ -16,7 +16,7 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 			throws Exception
 	{
 		super.setUp();
-		pom=getTestFile( "src/test/resources/unit/plugin-test/pom.xml" );
+		//pom=getTestFile( "src/test/resources/unit/plugin-test/pom.xml" );
 	}
 
 	/** {@inheritDoc} */
@@ -36,7 +36,7 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 	@Test
 	public void testPublishFeature() throws Exception
 	{
-		PublishFeatureMojo publishFeatureMojo = (PublishFeatureMojo) lookupMojo( "feature-publish", pom );
+		FeaturePublishMojo publishFeatureMojo = (FeaturePublishMojo) lookupMojo( "feature-publish", pom );
 		assertNotNull( publishFeatureMojo );
 		publishFeatureMojo.execute();
 	}
@@ -44,7 +44,7 @@ public class FeatureServiceTest extends AbstractMojoTestCase {
 	@Test
 	public void testFinishFeature() throws Exception
 	{
-		FinishFeatureMojo finishFeatureMojo = (FinishFeatureMojo) lookupMojo( "feature-finish", pom );
+		FeatureFinishMojo finishFeatureMojo = (FeatureFinishMojo) lookupMojo( "feature-finish", pom );
 		assertNotNull( finishFeatureMojo );
 		finishFeatureMojo.execute();
 	}

@@ -9,7 +9,6 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -31,7 +30,7 @@ public class BranchService {
 			CheckoutCommand checkoutCommand = git.checkout().setName(branchToCheckout);
 			checkoutCommand.call();
 		} catch (Exception e) {
-			logger.error("unable to checkout branch: " + branchToCheckout);
+			logger.error("unable to checkout branch: [" + branchToCheckout+"], "+e.getMessage());
 			return false;
 		}
 		return true;
@@ -49,7 +48,7 @@ public class BranchService {
 				return false;
 			}
 		} catch (Exception e) {
-			logger.error("unable to checkout remote branch: [" + remoteBranchToCheckout+"]"+e.getMessage());
+			logger.error("unable to checkout remote branch: [" + remoteBranchToCheckout+"], "+e.getMessage());
 			return false;
 		}
 		return true;
@@ -79,7 +78,23 @@ public class BranchService {
 		}
 		return true;
 	}
-
+	public static boolean createBranchFromTag(Git git, String branchName, String tagName) {
+		if (isBranchExists(git, branchName, ListMode.ALL)) {
+			logger.error("branch with the same name exists: [" + branchName + "]");
+			return false;
+		}
+		
+		try {
+			git.checkout()
+			.setCreateBranch(true)
+			.setName(branchName)
+			.setStartPoint(Constants.GIT_DEFAULT_REFS_TAGS+tagName).call();
+		} catch (Exception e) {
+			logger.error("error while creating branch from tag: ["+tagName+"] "+e.getMessage());
+			return false;
+		} 
+		return true;
+	}
 	public static boolean createAndPushBranch(Git git, String branchName,
 			UsernamePasswordCredentialsProvider userCredential) {
 

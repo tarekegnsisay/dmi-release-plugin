@@ -1,20 +1,32 @@
 package com.dmi.plugin.service;
 
+import org.apache.log4j.Logger;
+import org.apache.maven.project.MavenProject;
+
 import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.Constants;
 import com.dmi.plugin.util.ScmBranchingConfiguration;
+import com.dmi.plugin.util.ScmUtils;
 import com.dmi.plugin.util.StringUtils;
 import com.dmi.plugin.util.UserConfiguration;
 
 public class AbstractApplicationService {
-	protected GitScmService scmService = null;
+
+	final static Logger logger = Logger.getLogger(AbstractApplicationService.class);
+	
 	protected ScmBranchingConfiguration scmBranchingConfiguration;
 	protected UserConfiguration userConfiguration;
-
+	
+	protected GitScmService scmService = null;
+	protected String uri;
+	protected String localPath;
+	protected MavenProject project;
+	
+	
 	public AbstractApplicationService() {
 	}
 
-	public AbstractApplicationService(ScmBranchingConfiguration scmBranchingConf, UserConfiguration userConfiguration) {
+	public AbstractApplicationService(MavenProject mavenProject,ScmBranchingConfiguration scmBranchingConf, UserConfiguration userConfiguration) {
 
 		scmBranchingConfiguration = scmBranchingConf;
 
@@ -34,6 +46,22 @@ public class AbstractApplicationService {
 		 * more on user configuration
 		 */
 		this.userConfiguration = userConfiguration;
+		this.project=mavenProject;
+		
+		if(project==null){
+			logger.error("this plugin can be used only with maven projects");
+		}
+		else{
+			logger.info("maven project is detected:"+project.getDescription());
+		}
+		uri = ScmUtils.getScmUri(project.getScm());
+
+		localPath = project.getBasedir().getAbsolutePath();
+
+		scmService = new GitScmService(uri, localPath, userConfiguration);
+		if(scmService==null){
+			
+		}
 
 	}
 
