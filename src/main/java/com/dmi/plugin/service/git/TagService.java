@@ -1,6 +1,7 @@
 package com.dmi.plugin.service.git;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -83,7 +84,7 @@ public class TagService {
 	public static List<String> getAllTags(Git git) {
 		List<String> tags = new ArrayList<>();
 		try {
-			List<Ref> tagRefs = git.tagList().call();
+			Collection<Ref> tagRefs = git.lsRemote().setTags(true).call();
 			for (Ref ref : tagRefs) {
 				tags.add(ref.getName());
 			}

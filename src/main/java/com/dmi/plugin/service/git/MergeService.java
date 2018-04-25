@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 
 public class MergeService {
 	final static Logger logger = Logger.getLogger(MergeService.class);
@@ -27,7 +28,7 @@ public class MergeService {
 				logger.error(mergeResult.getConflicts().toString());
 			}
 			else if(status.isSuccessful()){
-				BranchService.deleteBranch(git, source);
+				BranchService.deleteBranchFromLocal(git, source);
 				
 			}
 		}  catch (GitAPIException | IOException e) {
@@ -35,5 +36,49 @@ public class MergeService {
 		}
 }
 
+	public static boolean mergeBranches(Git git,String destination, String source,String mergeMessage) {
+		
+		try {
+			if(git.getRepository().findRef(source)==null)
+				BranchService.checkoutRemoteBranch(git, source);
+			if(git.getRepository().findRef(destination)==null)
+				BranchService.checkoutRemoteBranch(git, destination);
+			
+			git.checkout().setName(destination).setCreateBranch(false).call();
+			
+			Ref sourceRef=git.getRepository().findRef(source);
+			
+			MergeCommand mergeCommand=git.merge().include(sourceRef).setMessage(mergeMessage);
+			
+			MergeResult mergeResult=mergeCommand.call();
+			
+			return checkMergeResult(mergeResult);
+			
+		}  catch (GitAPIException | IOException e) {
+			logger.error("unable to merge branches, destination: [ "+destination+" ] and source: [ "+source+" ]"+e.getMessage());
+		}
+		return true;
+}
+	
+	public static boolean checkMergeResult(MergeResult mergeResult){
+		
+		logger.info("merge result mergeResult.getFailingPaths(: "+mergeResult.getConflicts());
+		logger.info("merge result mergeResult.getFailingPaths: "+mergeResult.getFailingPaths());
+		logger.info("merge result mergeResult.toString()"+mergeResult.toString());
+		
+		MergeResult.MergeStatus mergeStatus=mergeResult.getMergeStatus();
+		logger.info("merge status was: "+mergeStatus.toString());
+		
+		if(mergeStatus.equals(MergeStatus.CONFLICTING)) {
+			logger.error(mergeResult.getConflicts().toString());
+		}
+		else if(mergeStatus.isSuccessful()){
+			//BranchService.deleteBranch(git, source);
+			logger.info("successful merge!!!");
+			
+		}
+		return true;
+		
+	}
 
 }

@@ -1,83 +1,74 @@
 package com.dmi.plugin.service;
 
 import org.apache.log4j.Logger;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-import com.dmi.plugin.service.git.GitScmService;
 import com.dmi.plugin.util.Constants;
 import com.dmi.plugin.util.ScmBranchingConfiguration;
-import com.dmi.plugin.util.ScmUtils;
 import com.dmi.plugin.util.UserConfiguration;
 
 public class FeatureService extends AbstractApplicationService {
 
 	final static Logger logger = Logger.getLogger(FeatureService.class);
 
-	public FeatureService(ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
-		super(scmBranchingConfiguration, userConfiguration);
+	public FeatureService(MavenProject mavenProject,ScmBranchingConfiguration scmBranchingConfiguration, UserConfiguration userConfiguration) {
+		super(mavenProject,scmBranchingConfiguration, userConfiguration);
 	}
 
-	public FeatureService() {
-	}
+	public FeatureService() {}
 
-	public boolean createFeature(MavenProject project, String featureName) {
+	public boolean createFeature(String featureName) {
+
 		String baseDevBranch = scmBranchingConfiguration.getDevelopmentBranch();
-		String uri = ScmUtils.getScmUri(project.getScm());
-		String localPath = project.getBasedir().getAbsolutePath();
-
 		String newFeatureName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
 
-		try {
-			scmService = new GitScmService(uri, localPath, userConfiguration);
+		boolean branchExists = scmService.isBranchExists(newFeatureName);
 
-			boolean branchExists = scmService.isBranchExists(newFeatureName);
-			if (branchExists) {
-				logger.error("Branch with name [" + newFeatureName + "] already exists");
-				return false;
-			}
-
-			scmService.checkoutBranch(baseDevBranch);
-			scmService.createBranch(newFeatureName);
-			scmService.checkoutBranch(newFeatureName);
-			/*
-			 * we won't publish/push it unless for sharing
-			 */
-		} catch (Exception e) {
-			logger.error("error occured while creating a feature, with name: [" + featureName + "]");
+		if (branchExists) {
+			logger.error("Branch with name [" + newFeatureName + "] already exists");
 			return false;
 		}
-		return true;
-	}
-	public boolean publishFeature(MavenProject project, String featureName) {
 
-		String uri = ScmUtils.getScmUri(project.getScm());
-		String localPath = project.getBasedir().getAbsolutePath();
+		if(scmService.checkoutBranch(baseDevBranch))
+			if(scmService.createBranch(newFeatureName))
+				if(scmService.checkoutBranch(newFeatureName))
+					return true;
+
+		return false;
+	}
+
+	public boolean publishFeature(String featureName) {
 
 		String featureFullName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
 
-		try {
-			userConfiguration.setGitUsername("musema.hassen@gmail.com");
-			userConfiguration.setGitPassword("musads2555");
-			scmService = new GitScmService(uri, localPath, userConfiguration);
-			boolean isPublished=scmService.publishBranch(featureFullName);
-			if(isPublished) {
-				logger.info("feature is published, you can tell others to contribute to it.");
-			}
-			else{
-				logger.error("error occured while publishin a feature, with name: [" + featureFullName + "]");
-				return false;
-			}
-			
-		} catch (Exception e) {
-			logger.error("error occured while publishing a feature, with name: [" + featureFullName + "]");
+		if (scmService.publishBranch(featureFullName)) {
+			logger.info("feature is published, you can tell others to contribute to it.");
+		} 
+		else {
+			logger.error("error occured while publishin a feature, with name: [" + featureFullName + "]");
 			return false;
 		}
 		return true;
 	}
-	public void finishFeature(MavenProject project, String featureName, Log log) {
-		
 
+	public boolean finishFeature(String featureName) {
+
+		String featureFullName = getFullNameOfFeature(scmBranchingConfiguration.getFeatureBranchPrefix(), featureName);
+		String mergeMessage = "merging feature [" + featureName + "] to development stream before finishing";
+		String devBranch=scmBranchingConfiguration.getDevelopmentBranch();
+
+		if(scmService.checkoutBranch(devBranch))
+			if(scmService.mergeBranches(devBranch, featureFullName,	mergeMessage))
+				if(scmService.pushBranch(devBranch))
+					if(scmService.deleteBranchFromLocal(featureFullName))
+						if(scmService.deleteBranchFromRemote(featureFullName))
+
+						{
+							logger.info(" feature finished, now [" + featureFullName + "] branch is merged in to ["
+									+ devBranch + "] and deleted from local and remote repositories.");
+							return true;
+						}
+		return false;
 	}
 
 	public String getFullNameOfFeature(String prefix, String featureName) {

@@ -21,7 +21,7 @@ public class ScmUtils {
 				logger.error(" scm url inside pom must be set");
 				return null;
 			}
-			logger.info("Repo URI:"+uri);
+			logger.info("uri resolved: ["+uri+"]");
 			//check if valid git repo
 			//scmManagerService.validateRepo(uri);
 			return uri;

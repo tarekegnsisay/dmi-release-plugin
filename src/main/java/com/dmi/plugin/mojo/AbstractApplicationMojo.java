@@ -20,18 +20,34 @@ public abstract class AbstractApplicationMojo extends AbstractMojo {
 	@Parameter(defaultValue="${userConfiguration}")
 	protected UserConfiguration userConfiguration;
 	
-	
 	@Component
 	protected Prompter prompt;
 	
-	public String promptUser(String message) {
+	public boolean confirmAction(String message) {
+		boolean confirmed=false;
 		String response="";
 		try {
 			response=prompt.prompt(message);
+			
+			if(response.equalsIgnoreCase("yes")) {
+				confirmed=true;
+			}
+			if(!response.equalsIgnoreCase("yes")) {
+				getLog().info("You've entered:[ "+response+" ] you must enter [ yes ] to confirm");
+			}
 		} catch (PrompterException e) {
 			getLog().error(e.getMessage());
 		}
-		return response;
+		return confirmed;
+	}
+	public String acceptStringInput(String message){
+		String input="";
+		try {
+			input=prompt.prompt(message);
+		} catch (PrompterException e) {
+			getLog().error(e.getMessage());
+		}
+		return input;
 	}
 	
 

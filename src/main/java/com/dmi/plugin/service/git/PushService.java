@@ -5,15 +5,17 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 
+import com.dmi.plugin.util.Constants;
+
 public class PushService {
 	final static Logger logger=Logger.getLogger(PushService.class);
-	public static boolean pushNewBranch(Git git,String newBranchName, CredentialsProvider userCredential) {
+	public static boolean pushBranch(Git git,String branchName, CredentialsProvider userCredential) {
 		try {
 
-			git.push().setRemote("origin").setCredentialsProvider(userCredential).call();
-			logger.info(" branch: [ "+newBranchName+" ] has been pushed successfully");
+			git.push().setRemote(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME).setCredentialsProvider(userCredential).call();
+			logger.info(" branch: [ "+branchName+" ] has been pushed successfully");
 		} catch (GitAPIException e) {
-			logger.error("unable to push branch: [ "+newBranchName+" ]"+e.getMessage());
+			logger.error("unable to push branch: [ "+branchName+" ] "+e.getMessage());
 			return false;
 		}
 		return true;

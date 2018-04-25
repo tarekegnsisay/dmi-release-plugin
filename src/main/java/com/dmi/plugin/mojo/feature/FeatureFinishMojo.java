@@ -6,21 +6,32 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.FeatureService;
+import com.dmi.plugin.util.Constants;
 
-@Mojo(name="feature-finish")
+@Mojo(name="feature-finish",aggregator=true)
 public class FeatureFinishMojo extends AbstractApplicationMojo{
 
-	private FeatureService featureService=new FeatureService();
+	private FeatureService featureService;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		getLog().info("Finishing new feature...:");
 
-		/*
-		 * find feature name and pass it to the service 
-		 */
-		String featureName="";
-		featureService.finishFeature(project,featureName,getLog());
-		getLog().info("Feature branch should be merged and deleted OK");
+		featureService=new FeatureService(project,scmBranchingConfiguration,userConfiguration);
+
+		boolean isConfirmed= confirmAction("Do you really wants to [finish] a feature? Enter [ yes ] to continue");
+
+		if(isConfirmed){
+
+			String featureName=acceptStringInput("Enter feature name you want to finish:");
+
+			boolean status=featureService.finishFeature(featureName);
+
+			if(!status) {
+				throw new MojoFailureException(Constants.MAVEN_GENERIC_MOJO_FAILURE_EXCCEPTION_MESSAGE);
+			}
+		}
+		else{
+			getLog().info("Task aborted, confirmation needed");
+		}
 	}
 
 }

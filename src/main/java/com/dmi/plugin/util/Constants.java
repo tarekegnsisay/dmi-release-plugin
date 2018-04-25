@@ -13,6 +13,9 @@ public class Constants {
 	public static final String GIT_DEFAULT_DST_TAGS_REF_SPEC="refs/remotes/origin/tags/*";
 	
 	public static final String GIT_DEFAULT_REFS_HEADS="refs/heads/";
+	public static final String GIT_DEFAULT_REFS_TAGS="refs/tags/";
+	public static final String GIT_DEFAULT_REFS_REMOTE_TAGS="refs/remotes/origin/tags/";
+	public static final String GIT_DIFAULT_REFS_REMOTE_TAGS_PATH="refs/remotes/origin/tags/";
 	public static final String GIT_DEFAULT_REFS_REMOTES="refs/remotes/origin/";
 	
 	
@@ -27,11 +30,13 @@ public class Constants {
 	 * scm branching defaults
 	 */
 	public static final String WORKFLOW_DEFAULT_MASTER_BRANCH="master";
-	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="master";//should be 'develop' 
+	public static final String WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH="develop";
 	
 	public static final String WORKFLOW_DEFAULT_FEATURE_BRANCH_PREFIX="feature/";
 	public static final String WORKFLOW_DEFAULT_RELEASE_BRANCH_PREFIX="release/";
 	public static final String WORKFLOW_DEFAULT_HOTFIX_BRANCH_PREFIX="hotfix/";
 	public static final String WORKFLOW_DEFAULT_TAG_PREFIX="v";
+	
+	public static final String MAVEN_GENERIC_MOJO_FAILURE_EXCCEPTION_MESSAGE="Something went wrong while executing mojo goal, please check error log and try again";
 	
 }

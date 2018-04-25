@@ -1,6 +1,5 @@
 package com.dmi.plugin.service.git;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +9,6 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -28,19 +26,36 @@ public class BranchService {
 	final static Logger logger = Logger.getLogger(BranchService.class);
 
 	public static boolean checkoutBranch(Git git, String branchToCheckout) {
-		boolean status = false;
 		try {
 			CheckoutCommand checkoutCommand = git.checkout().setName(branchToCheckout);
 			checkoutCommand.call();
-			status = true;
 		} catch (Exception e) {
-			logger.error("unable to checkout branch: " + branchToCheckout);
+			logger.error("unable to checkout branch: [" + branchToCheckout+"], "+e.getMessage());
+			return false;
 		}
-		return status;
+		return true;
+	}
+
+	public static boolean checkoutRemoteBranch(Git git, String remoteBranchToCheckout) {
+		boolean createBranch=!isBranchExistInLocal(git,remoteBranchToCheckout);
+
+		try {
+			Ref ref = git.checkout().setCreateBranch(createBranch).setName(remoteBranchToCheckout)
+					.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+					.setStartPoint(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME + "/" + remoteBranchToCheckout).call();
+			if (ref == null) {
+				logger.error("unable to resolve reference to branch: " + remoteBranchToCheckout);
+				return false;
+			}
+		} catch (Exception e) {
+			logger.error("unable to checkout remote branch: [" + remoteBranchToCheckout+"], "+e.getMessage());
+			return false;
+		}
+		return true;
 	}
 
 	public static boolean createBranch(Git git, String branchName) {
-		if (isBranchExists(git, branchName)) {
+		if (isBranchExists(git, branchName, ListMode.ALL)) {
 			logger.error("branch with the same name exists: [" + branchName + "]");
 			return false;
 		}
@@ -63,11 +78,27 @@ public class BranchService {
 		}
 		return true;
 	}
-
+	public static boolean createBranchFromTag(Git git, String branchName, String tagName) {
+		if (isBranchExists(git, branchName, ListMode.ALL)) {
+			logger.error("branch with the same name exists: [" + branchName + "]");
+			return false;
+		}
+		
+		try {
+			git.checkout()
+			.setCreateBranch(true)
+			.setName(branchName)
+			.setStartPoint(Constants.GIT_DEFAULT_REFS_TAGS+tagName).call();
+		} catch (Exception e) {
+			logger.error("error while creating branch from tag: ["+tagName+"] "+e.getMessage());
+			return false;
+		} 
+		return true;
+	}
 	public static boolean createAndPushBranch(Git git, String branchName,
 			UsernamePasswordCredentialsProvider userCredential) {
 
-		if (isBranchExists(git, branchName)) {
+		if (isBranchExists(git, branchName, ListMode.ALL)) {
 			logger.error("branch with the same name exists: [" + branchName + "]");
 			return false;
 		}
@@ -98,28 +129,31 @@ public class BranchService {
 		}
 		return true;
 	}
-public static boolean publishBranch(Git git,String branchName,UsernamePasswordCredentialsProvider userCredential) {
-	if (!isBranchExists(git, branchName)) {
-		logger.error("branch doesn't exists, unable to publish [" + branchName + "]");
-		return false;
-	}
-	
-	try {
-		setUpStream(git, branchName);
-		git.checkout().setName(branchName).call();
-		Iterable<PushResult> pushResults = git.push().setRemote(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME)
-				.setCredentialsProvider(userCredential).call();
 
-		for (PushResult pushResult : pushResults) {
-			logger.info("push result message:" + pushResult.getMessages());
+	public static boolean publishBranch(Git git, String branchName,
+			UsernamePasswordCredentialsProvider userCredential) {
+		if (!isBranchExists(git, branchName, ListMode.ALL)) {
+			logger.error("branch doesn't exists, unable to publish [" + branchName + "]");
+			return false;
 		}
 
-	} catch (Exception e) {
-		logger.error("unable to publish branch: [ " + branchName + " ]" + e.getMessage());
-		return false;
+		try {
+			setUpStream(git, branchName);
+			git.checkout().setName(branchName).call();
+			Iterable<PushResult> pushResults = git.push().setRemote(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME)
+					.setCredentialsProvider(userCredential).call();
+
+			for (PushResult pushResult : pushResults) {
+				logger.info("push result message:" + pushResult.getMessages());
+			}
+
+		} catch (Exception e) {
+			logger.error("unable to publish branch: [ " + branchName + " ]" + e.getMessage());
+			return false;
+		}
+		return true;
 	}
-	return true;
-}
+
 	public static void checkoutCommit(Git git, String commitId) {
 		try {
 			git.checkout().setStartPoint(commitId).call();
@@ -137,14 +171,13 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 		}
 	}
 
-	public static boolean deleteBranch(Git git, String branchToDelete) {
-		boolean isDeleted = false;
+	public static boolean deleteBranchFromLocal(Git git, String branchToDelete) {
+
 		if (branchToDelete.equalsIgnoreCase(Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH)) {
 			logger.error("development branch can't be deleted");
 			return false;
 		}
 		try {
-			String currentBranch = git.getRepository().getFullBranch();
 			boolean isCheckedout = checkoutBranch(git, Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH);
 			if (!isCheckedout) {
 				logger.error("deletion of branch: [ " + branchToDelete
@@ -152,29 +185,21 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 						+ Constants.WORKFLOW_DEFAULT_DEVELOPMENT_BRANCH + " ]");
 				return false;
 			}
-			if (branchToDelete.equalsIgnoreCase(currentBranch)) {
-				/*
-				 * check out another branch and proceed deletion, master,develop?TBD
-				 */
-			}
+
 			git.branchDelete().setForce(true).setBranchNames(branchToDelete).call();
 
-			logger.info("branch: [ " + branchToDelete + " ] was deleted");
-			logger.info("repository set up after deletion of branch [ " + branchToDelete + " ]: \n\n");
+			logger.info("branch: [ " + branchToDelete + " ] deleted");
 
-			logRefsAndGitConfig(git.getRepository());
-			isDeleted = true;
-		} catch (GitAPIException | IOException e) {
+		} catch (Exception e) {
 			logger.error("unable to delete branch: [ " + branchToDelete + " ]" + e.getMessage());
+			return false;
 		}
-		return isDeleted;
+		return true;
 	}
 
 	public static boolean deleteBranchFromRemote(Git git, String branchToDelete,
 			UsernamePasswordCredentialsProvider userCredential) {
 
-		boolean isDeleted = false;
-		deleteBranch(git, branchToDelete);
 		String refToDelete = Constants.GIT_DEFAULT_REFS_HEADS + branchToDelete;
 
 		try {
@@ -182,20 +207,18 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 
 			Iterable<PushResult> pushResults = git.push().setRefSpecs(deleteSpec)
 					.setRemote(Constants.GIT_DEFAULT_REMOTE_ALIAS_NAME).setCredentialsProvider(userCredential).call();
-			for (PushResult pushResult : pushResults) {
-				logger.info("push result message:" + pushResult);
-			}
-			logger.info("remote reference: [ " + refToDelete + " ] was deleted");
-			logger.info("repository set up after deletion of remote reference [ " + refToDelete + " ]: \n\n");
 
-			logRefsAndGitConfig(git.getRepository());
-
-			isDeleted = true;
+			if (pushResults != null)
+				for (PushResult pushResult : pushResults) {
+					logger.info("push result message:" + pushResult);
+				}
+			logger.info("remote reference: [ " + refToDelete + " ] deleted");
 
 		} catch (Exception e) {
 			logger.error("unable to delete remote reference: [ " + refToDelete + " ]" + e.getMessage());
+			return false;
 		}
-		return isDeleted;
+		return true;
 	}
 
 	public static void setUpStream(Git git, String branchName) {
@@ -207,15 +230,15 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 				Constants.GIT_DEFAULT_REFS_HEADS + branchName);
 		try {
 			storedConfig.save();
-		} catch (IOException e) {
-			logger.error("unable to setupstream in config file for branch: " + branchName);
+		} catch (Exception e) {
+			logger.error("unable to setupstream in config file for branch: " + branchName+"] "+e.getMessage());
 		}
 
 	}
 
-	public static boolean isBranchExists(Git git, String branchName) {
+	public static boolean isBranchExists(Git git, String branchName, ListMode listMode) {
 
-		List<String> branches = getAllBranches(git);
+		List<String> branches = getAllBranches(git, listMode);
 
 		for (String branch : branches) {
 			int index = branch.indexOf(branchName);
@@ -226,12 +249,29 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 					if (temp.equalsIgnoreCase(branchName)) {
 						return true;
 					}
-
 			}
 		}
 		return false;
 	}
+	public static boolean isBranchExistInLocal(Git git, String branchName){
+		/*
+		 * 
+		 * 
+	 		List<String> branches=getAllBranches(git,ListMode.ALL);
+	 		List<String> remoteBranches=getAllBranches(git,ListMode.REMOTE);
+	 		branches.removeAll(remoteBranches);
 
+		 * 
+		 * 
+		 */
+		String fullBranchName=Constants.GIT_DEFAULT_REFS_HEADS+branchName;
+		try {
+			return git.branchList().call().contains(fullBranchName);
+		} catch (Exception e) {
+			logger.error("error while retrieving local branch info: "+e.getMessage());
+		}
+		return false;
+	}
 	public static void getRecentlyModifiedBranch(Git git) {
 		/*
 		 * RefModels
@@ -245,10 +285,10 @@ public static boolean publishBranch(Git git,String branchName,UsernamePasswordCr
 		logger.info("repository set up: \n\n" + repository.getConfig().toText());
 	}
 
-	public static List<String> getAllBranches(Git git) {
+	public static List<String> getAllBranches(Git git, ListMode listMode) {
 		List<String> branches = new ArrayList<>();
 		try {
-			List<Ref> branchRefs = git.branchList().setListMode(ListMode.ALL).call();
+			List<Ref> branchRefs = git.branchList().setListMode(listMode).call();
 			for (Ref ref : branchRefs) {
 				branches.add(ref.getName());
 			}
