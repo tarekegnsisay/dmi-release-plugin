@@ -8,7 +8,7 @@ import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.HotfixService;
 import com.dmi.plugin.util.Constants;
 
-@Mojo(name="hotfix-publish")
+@Mojo(name="hotfix-publish",aggregator=true)
 public class HotfixPublishMojo extends AbstractApplicationMojo{
 
 	private HotfixService hotfixService=new HotfixService();
@@ -21,7 +21,7 @@ public class HotfixPublishMojo extends AbstractApplicationMojo{
 
 		if(isConfirmed){
 
-			String hotfixName=acceptStringInput("Enter hotfix name you wanted to publish:");
+			String hotfixName=acceptStringInput("Enter hotfix name you wanted to publish");
 
 			boolean status=hotfixService.publishHotfix(hotfixName);
 

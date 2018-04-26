@@ -9,7 +9,7 @@ import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.HotfixService;
 import com.dmi.plugin.util.Constants;
 
-@Mojo(name="hotfix-finish")
+@Mojo(name="hotfix-finish",aggregator=true)
 
 public class HotfixFinishMojo extends AbstractApplicationMojo{
 
@@ -23,7 +23,7 @@ public void execute() throws MojoExecutionException, MojoFailureException {
 		
 		if(isConfirmed) {
 			
-			String hotfixName=acceptStringInput("Enter existing hotfix name you want to finish:");
+			String hotfixName=acceptStringInput("Enter existing hotfix name you want to finish");
 			
 			boolean status=hotfixService.finishHotfix(hotfixName);
 			

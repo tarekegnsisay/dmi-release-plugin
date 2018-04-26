@@ -151,6 +151,7 @@ public class BranchService {
 			logger.error("unable to publish branch: [ " + branchName + " ]" + e.getMessage());
 			return false;
 		}
+		logger.info("release is published, you can tell others to review and contribute to it.");
 		return true;
 	}
 
@@ -247,10 +248,12 @@ public class BranchService {
 				String temp = branch.substring(index);
 				if (temp != null)
 					if (temp.equalsIgnoreCase(branchName)) {
+						logger.error("found branch with name [" + branchName+"]" );
 						return true;
 					}
 			}
 		}
+		logger.error("found branch with name [" + branchName+"] doesn't exist" );
 		return false;
 	}
 	public static boolean isBranchExistInLocal(Git git, String branchName){

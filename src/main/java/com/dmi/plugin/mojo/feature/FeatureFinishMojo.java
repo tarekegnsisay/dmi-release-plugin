@@ -21,7 +21,7 @@ public class FeatureFinishMojo extends AbstractApplicationMojo{
 
 		if(isConfirmed){
 
-			String featureName=acceptStringInput("Enter feature name you want to finish:");
+			String featureName=acceptStringInput("Enter feature name you want to finish");
 
 			boolean status=featureService.finishFeature(featureName);
 
@@ -33,5 +33,4 @@ public class FeatureFinishMojo extends AbstractApplicationMojo{
 			getLog().info("Task aborted, confirmation needed");
 		}
 	}
-
 }

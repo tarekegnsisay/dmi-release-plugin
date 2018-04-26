@@ -59,9 +59,13 @@ public class GitScmService {
 		}
 		try {
 			this.git = new Git(this.repo);
-			this.git.pull().call();
 		} catch (Exception e) {
 			logger.error("error initializing git instance, git=new Git(repo): [" + e.getMessage() + "]");
+		}
+		try{
+			this.git.pull().call();
+		}catch(Exception e){
+			logger.error("pull command says: ["+e.getMessage()+"]");
 		}
 
 	}
@@ -78,9 +82,9 @@ public class GitScmService {
 		StagingService.stageFiles(git, filePattern);
 	}
 
-	public void commitAllChangesToTackedFiles(String commitMassage) {
+	public boolean commitAllChangesToTackedFiles(String commitMassage) {
 
-		CommitService.commitAllChangesToTackedFiles(git, commitMassage);
+		return CommitService.commitAllChangesToTackedFiles(git, commitMassage);
 	}
 
 	public void commitStagedFilesOnly(String commitMessage) {
@@ -153,16 +157,12 @@ public class GitScmService {
 		BranchService.checkoutCommit(git, commitId, checkoutToBranch);
 	}
 
-	public void pullRepo() {
-		PullService.pullRepo(git);
+	public boolean pullRepo() {
+		return PullService.pullRepo(git);
 	}
 
 	public Repository createGitRepo() {
 		return RepositoryAndCloneService.createGitRepo(localPath);
-	}
-
-	public void mergeAndDeleteBranches(String destination, String source) {
-		MergeService.mergeAndDeleteBranches(git, destination, source);
 	}
 
 	public boolean mergeBranches(String destination, String source, String mergeMessage) {

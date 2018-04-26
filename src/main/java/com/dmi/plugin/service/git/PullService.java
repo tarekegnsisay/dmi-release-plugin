@@ -11,7 +11,7 @@ public class PullService {
 	
 	private final static Logger logger=Logger.getLogger(PullService.class);
 	
-	public static void pullRepo(Git git) {
+	public static boolean pullRepo(Git git) {
 		String currentBranch="";
 		PullCommand pullCommand=git.pull();
 		try {
@@ -20,7 +20,9 @@ public class PullService {
 			logger.info("Pull command was successful.");
 		} catch (GitAPIException | IOException e) {
 			logger.error("unable to pull to branch: [ "+currentBranch+" ]"+e.getMessage());
+			return false;
 		}
+		return true;
 	}
 
 
