@@ -25,8 +25,7 @@
 		mvn go:hotfix-finish
 
  3. What are the **pre-requisites** to use the plugin?
-		 - Install Java, Maven, Git
-		 - Install it since it is a maven project you can do: 
+		
 					
 
  - [ ] Install Java, Maven, Git
