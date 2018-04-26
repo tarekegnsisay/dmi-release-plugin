@@ -41,46 +41,47 @@ public class HotfixService extends AbstractApplicationService{
 
 		return false;
 	}
-
-
+	/*
+	 * TODO versions in hotfix release, but SNAPSHOT in develop, merging those branches should preserve this behavior
+	 * 
+	 * 
+	 */
 	public boolean finishHotfix(String hotfixName) {
 
 		String fullNameOfHotfixBranch = getFullNameOfHotfixBranch(scmBranchingConfiguration.getFeatureBranchPrefix(), hotfixName);
+		
 		String devBranch=scmBranchingConfiguration.getDevelopmentBranch();
 		String masterBranch=scmBranchingConfiguration.getMasterBranch();
-		String mergeMessage1 = "merging feature [" + hotfixName + "] to development stream before finishing hotfix";
-		String 	mergeMessage2 = "merging feature [" + hotfixName + "] to master before finishing hotfix";
 		
+		String mergeMessage1 = "merging feature [" + hotfixName + "] to development stream before finishing hotfix";
+		String mergeMessage2 = "merging feature [" + hotfixName + "] to master before finishing hotfix";
+
 		String successMessage=" hotfix is completed now [" + fullNameOfHotfixBranch + "] branch is merged in to ["
 				+ masterBranch+" and "+devBranch + "] and deleted from local and remote repositories.";
-		
+
 		if(scmService.checkoutBranch(devBranch))
 			if(scmService.mergeBranches(devBranch, fullNameOfHotfixBranch,	mergeMessage1))
 				if(scmService.mergeBranches(masterBranch, fullNameOfHotfixBranch,	mergeMessage2))
 					if(scmService.pushBranch(devBranch))
 						if(scmService.pushBranch(masterBranch))
-					if(scmService.deleteBranchFromLocal(fullNameOfHotfixBranch))
-						if(scmService.deleteBranchFromRemote(fullNameOfHotfixBranch)){
-							logger.info(successMessage);
-							return true;
-						}
-			
+							if(scmService.deleteBranchFromLocal(fullNameOfHotfixBranch))
+								if(scmService.deleteBranchFromRemote(fullNameOfHotfixBranch)){
+									logger.info(successMessage);
+									return true;
+								}
+
 		return false;
 	}
 
 	public boolean publishHotfix(String hotfixName) {
 
 		String fullNameofHotfix = getFullNameOfHotfixBranch(scmBranchingConfiguration.getHotfixBranchPrefix(), hotfixName);
-		
+
 		boolean isPublished = scmService.publishBranch(fullNameofHotfix);
-		
-		if (isPublished) {
-			logger.info("hotfix is published, you can tell others to contribute to it.");
-		} else {
-			logger.error("error occured while publishin a hotfix, with name: [" + fullNameofHotfix + "]");
-			return false;
-		}
-		return true;
+
+		if (isPublished)
+			return true;
+		return false;
 	}
 
 	public String getFullNameOfHotfixBranch(String prefix, String hotfixName) {

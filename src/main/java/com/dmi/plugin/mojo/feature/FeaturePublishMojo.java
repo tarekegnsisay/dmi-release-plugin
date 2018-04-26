@@ -21,7 +21,7 @@ public class FeaturePublishMojo extends AbstractApplicationMojo{
 		
 		if(isConfirmed){
 			
-			String featureName=acceptStringInput("Enter feature name you wanted to publish:");
+			String featureName=acceptStringInput("Enter feature name you wanted to publish");
 			
 			boolean status=featureService.publishFeature(featureName);
 			

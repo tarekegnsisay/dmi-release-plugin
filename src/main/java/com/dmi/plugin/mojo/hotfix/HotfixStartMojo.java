@@ -9,7 +9,7 @@ import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.HotfixService;
 import com.dmi.plugin.util.Constants;
 
-@Mojo(name="hotfix-start")
+@Mojo(name="hotfix-start",aggregator=true)
 public class HotfixStartMojo extends AbstractApplicationMojo{
 
 	private HotfixService hotfixService=new HotfixService();

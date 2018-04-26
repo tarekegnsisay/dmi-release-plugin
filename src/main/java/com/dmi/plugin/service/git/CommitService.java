@@ -11,7 +11,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 public class CommitService {
 	final static Logger logger = Logger.getLogger(CommitService.class);
 
-	public static void commitAllChangesToTackedFiles(Git git,String commitMassage) {
+	public static boolean commitAllChangesToTackedFiles(Git git,String commitMassage) {
 
 		CommitCommand commitCommand=git.commit().setAll(true);
 		commitCommand.setMessage(commitMassage);
@@ -21,7 +21,9 @@ public class CommitService {
 			commitCommand.call();
 		}catch (Exception e) {
 			logger.error("error while commiting changes to: "+currentBranch);
+			return false;
 		}
+		return true;
 	}
 
 	public static void commitStagedFilesOnly(Git git,String commitMassage) {

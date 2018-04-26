@@ -7,7 +7,6 @@ import com.dmi.plugin.mojo.AbstractApplicationMojo;
 import com.dmi.plugin.service.FeatureService;
 import com.dmi.plugin.util.Constants;
 
-
 @Mojo(name="feature-start",aggregator=true)
 public class FeatureStartMojo extends AbstractApplicationMojo{
 
@@ -21,7 +20,7 @@ public class FeatureStartMojo extends AbstractApplicationMojo{
 		
 		if(isConfirmed)
 		{
-			String featureName=acceptStringInput("Enter new feature name:");
+			String featureName=acceptStringInput("Enter new feature name");
 			
 			boolean status=featureService.createFeature(featureName);
 			

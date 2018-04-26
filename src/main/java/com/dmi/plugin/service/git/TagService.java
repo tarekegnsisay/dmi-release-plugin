@@ -32,7 +32,7 @@ public class TagService {
 		}
 
 		if (tagger == null) {
-			tagger = new PersonIdent("dmi", "me@dminc.com");
+			tagger = new PersonIdent("No tagger specified", "no_tagger@company.com");
 		}
 
 		boolean isValid = isValidNewTagName(git, tagName);
